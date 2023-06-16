@@ -99,21 +99,27 @@ const getUserPreferences = async () => {
   };
 };
 
+// TODO: This is an important function
 const evaluateByTextComment = (comment, categories) => {
+  // no es una buena idea cargar los modelos aqui, ya que se hara esto por cada comentario
+
   //console.log("codigo para evaluar por el contenido textual de un comentario");
 
   return { isSpam: true, data: ["cat xd", "cat xd1"] };
 };
 
 const preprocessComment = (comment) => {
+  // en esta parte falta implementar el preprocesamiento del comentario (cleaning, tokenization, lematization, etc)
   return comment;
 };
 
+// este metodo es el mas importante, ya que evalua y ademas guarda en el comentario si es spam o no (no retorna nada, establece los valores se podria considerar por referencia)
+// comment_element es el nivel del objeto en donde se guardara el resultado
 const evaluateComment = async (comment, comment_element, evaluation_types) => {
   const { evaluate_by_image, evaluate_by_name, evaluate_by_text_comment } =
     evaluation_types;
 
-  // evaluando un comentario
+  // evaluando un comentario (los otras formas de evaluar se desarrollaran mas adelante)
   if (evaluate_by_text_comment?.isCheck) {
     const result = evaluateByTextComment(
       comment,
@@ -132,7 +138,7 @@ const evaluateComments = async (comments) => {
   // get user preferences
   const evaluation_types = await getUserPreferences();
 
-  console.log("debug1:", evaluation_types);
+  // load the models (considering evaluation_types)
 
   // evaluando todos los comentarios
   for (const element of comments) {
@@ -143,21 +149,7 @@ const evaluateComments = async (comments) => {
       element.topLevelComment.snippet.textOriginal
     );
 
-    /*
-    // evaluando un comentario
-    if (evaluation_types.evaluate_by_text_comment?.isCheck) {
-      const result = evaluateByTextComment(
-        comment,
-        evaluate_by_text_comment.data
-      );
-
-      // guardando los resultados
-      element.topLevelComment.isSpam = result.isSpam;
-      result.data.forEach((category) => {
-        element.topLevelComment.spamCategoriesMet.push(category);
-      });
-    }*/
-
+    // evaluando un comentario (los atributos del resultado se estableceran en element.topLevelComment )
     evaluateComment(comment, element.topLevelComment, evaluation_types);
 
     for (const replyComment of element.repliesComments) {
@@ -166,16 +158,7 @@ const evaluateComments = async (comments) => {
 
       comment = preprocessComment(replyComment.snippet.textOriginal);
 
-      // evaluando la respuesta de un comentario
       evaluateComment(comment, replyComment, evaluation_types);
-
-      /*
-      if (evaluation_types.evaluate_by_text_comment?.isCheck) {
-        evaluateByTextComment(
-          comment,
-          evaluation_types.evaluate_by_text_comment.data
-        );
-      }*/
     }
   }
 
@@ -197,16 +180,14 @@ const getSpamComments = async () => {
   // comentado para no gastar tokens de yt en el desarrollo
   //const comments = await getComments(video_id);
   //await setValueToLocalStorage("comments", comments);
-
-  // TODO: WORKING IN THIS PART
   const comments = await getValueFromLocalStorage("comments");
 
   console.log("***Comments2***");
   console.log(comments);
 
-  evaluateComments(comments);
+  const evaluated_comments = evaluateComments(comments);
 
-  return true;
+  return evaluated_comments;
 };
 
 const getSpamCommentsButton = () => {
