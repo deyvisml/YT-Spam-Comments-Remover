@@ -28,7 +28,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     })();
   } else if (message.action === "get-comments") {
     (async () => {
-      const video_id = message.video_id;
+      const video_id = message.data;
       const result = await getComments(video_id);
       sendResponse(result);
     })();
@@ -38,55 +38,62 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 const getCommentsYoutubeDataApi = async (video_id, credentials) => {
-  video_id = "sH7DNJj4vus"; // < 100 comments
+  //video_id = "sH7DNJj4vus"; // < 100 comments
   //video_id = "i4ompLBhUg4"; // > 100 comments
 
-  const api_key = "AIzaSyD9HrW-4nkzYM5QYPLk-HJzppE0iRIbdAU";
+  //const api_key = "AIzaSyD9HrW-4nkzYM5QYPLk-HJzppE0iRIbdAU";
+  const api_key = credentials[0];
 
   const comments = [];
   let nextPageToken = "";
 
+  // esta variable solo fue creada para representar una situacion de error, eso de debe de verifciar en el if de abajo
+  let errorOccurred = false;
+  let errorMessage = "";
+
   // sacar todos los comentarios de un video (la api te vuelve maximo 100 comentarios a la vez)
   do {
-    const response = await fetch(
-      `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&maxResults=100&order=relevance&pageToken=${nextPageToken}&videoId=${video_id}&key=${api_key}`
-    );
-    const result = await response.json();
+    try {
+      const response = await fetch(
+        `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&maxResults=100&order=relevance&pageToken=${nextPageToken}&videoId=${video_id}&key=${api_key}`
+      );
+      const result = await response.json();
 
-    result.items.forEach((item) => {
-      comments.push({
-        topLevelComment: item.snippet.topLevelComment, // comentario
-        repliesComments: item.replies?.comments ?? [], // respuestas a ese comentario
+      result.items.forEach((item) => {
+        comments.push({
+          topLevelComment: item.snippet.topLevelComment, // comentario
+          repliesComments: item.replies?.comments ?? [], // respuestas a ese comentario
+        });
       });
-    });
 
-    nextPageToken = result.nextPageToken ?? "";
-    console.log("nextPageToken: ", nextPageToken);
+      nextPageToken = result.nextPageToken ?? "";
+    } catch (error) {
+      console.log(error);
+      errorOccurred = true;
+      errorMessage = error;
+    }
   } while (nextPageToken !== "");
+
+  if (errorOccurred) {
+    console.log("Error en el metodo que llama a la API");
+    return { errorOccurred, errorMessage };
+  }
 
   console.log("data fetched");
   console.log(comments);
-
-  const aux_error = false;
-
-  if (aux_error) {
-    console.log("Error en el metodo que llama a la API");
-    return { errorOccurred: true, errorMessage: "message about the error" };
-  }
 
   return { errorOccurred: false, data: comments };
 };
 
 const getComments = async (video_id) => {
-  const credentials = await getValuesFromLocalStorage("credentials");
-  console.log("CREDENTIALS:", credentials);
+  const credentials = await getValueFromLocalStorage("credentials");
 
-  if (Object.keys(credentials).length == 0) {
+  if (credentials == null) {
     console.log("No existen credenciales establecidas");
     return { errorOccurred: true, errorMessage: "Without credentials" };
   }
 
-  // feature to add in the future: select the credential that has many tokens available, to prevent errors.
+  // TODO: feature to add in the future: select the credential that has many tokens available, to prevent errors.
   const result = await getCommentsYoutubeDataApi(video_id, credentials);
 
   return result;
@@ -109,12 +116,11 @@ const getCurrentUrl = async () => {
   }
 };
 
-// hacer que el metodo solo sea para un solo key, no para varios key y que se devuelve el valor no un objeto simillar a plasmo, pero primero usar githbu
-const getValuesFromLocalStorage = async (keys) => {
+const getValueFromLocalStorage = (key) => {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get(keys, (result) => {
+    chrome.storage.local.get(key, (result) => {
       if (!chrome.runtime.lastError) {
-        resolve(result);
+        resolve(result[key] ?? null);
       } else {
         reject(chrome.runtime.lastError);
       }

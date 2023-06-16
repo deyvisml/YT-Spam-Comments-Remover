@@ -16,7 +16,7 @@ const handler_save_options_btn = async () => {
   const credentials = getCredentials();
 
   try {
-    await setValuesToLocalStorage("credentials", credentials);
+    await setValueToLocalStorage("credentials", credentials);
   } catch (error) {
     console.error(error);
   }

@@ -32,6 +32,7 @@ const openOptionsPage = async () => {
 
 const getVideoId = async () => {
   let video_id;
+
   try {
     const result = await sendMessage("get-current-url", null);
 
@@ -46,8 +47,6 @@ const getVideoId = async () => {
     console.error(error);
   }
 
-  console.log("video_id", video_id);
-
   return video_id;
 };
 
@@ -55,12 +54,11 @@ const checkIsYoutubeDataAPICredentialsSet = async () => {
   let is_credentials_set;
 
   try {
-    const values = await getValuesFromLocalStorage("credentials");
+    const credentials = await getValueFromLocalStorage("credentials");
 
-    // verificar si la respuesta no es {}
-    if (Object.keys(values).length != 0) {
+    // verificar si la variable fue guardada
+    if (credentials != null) {
       is_credentials_set = true;
-      console.log("credentials:", values);
     } else {
       is_credentials_set = false;
     }
@@ -73,7 +71,6 @@ const checkIsYoutubeDataAPICredentialsSet = async () => {
 };
 
 const getComments = async (video_id) => {
-  // TODO: WORKING IN THIS PART
   const result = await sendMessage("get-comments", video_id);
 
   if (result.errorOccurred) {
@@ -84,6 +81,110 @@ const getComments = async (video_id) => {
   return result.data;
 };
 
+// para obtener cuales son las formas que el usuario seleccionio para evaluar los comentarios
+const getUserPreferences = async () => {
+  // cada uno almacenara un objeto {isCheck: bool, data: []}
+  const evaluate_by_image = await getValueFromLocalStorage("evaluate_by_image");
+  const evaluate_by_name = await getValueFromLocalStorage("evaluate_by_name");
+  let evaluate_by_text_comment = await getValueFromLocalStorage(
+    "evaluate_by_text_comment"
+  );
+
+  evaluate_by_text_comment = { isCheck: true, data: [] }; // testing
+
+  return {
+    evaluate_by_image,
+    evaluate_by_name,
+    evaluate_by_text_comment,
+  };
+};
+
+const evaluateByTextComment = (comment, categories) => {
+  //console.log("codigo para evaluar por el contenido textual de un comentario");
+
+  return { isSpam: true, data: ["cat xd", "cat xd1"] };
+};
+
+const preprocessComment = (comment) => {
+  return comment;
+};
+
+const evaluateComment = async (comment, comment_element, evaluation_types) => {
+  const { evaluate_by_image, evaluate_by_name, evaluate_by_text_comment } =
+    evaluation_types;
+
+  // evaluando un comentario
+  if (evaluate_by_text_comment?.isCheck) {
+    const result = evaluateByTextComment(
+      comment,
+      evaluate_by_text_comment.data
+    );
+
+    // guardando los resultados
+    comment_element.isSpam = result.isSpam;
+    result.data.forEach((category) => {
+      comment_element.spamCategoriesMet.push(category);
+    });
+  }
+};
+
+const evaluateComments = async (comments) => {
+  // get user preferences
+  const evaluation_types = await getUserPreferences();
+
+  console.log("debug1:", evaluation_types);
+
+  // evaluando todos los comentarios
+  for (const element of comments) {
+    element.topLevelComment.isSpam = false;
+    element.topLevelComment.spamCategoriesMet = [];
+
+    let comment = preprocessComment(
+      element.topLevelComment.snippet.textOriginal
+    );
+
+    /*
+    // evaluando un comentario
+    if (evaluation_types.evaluate_by_text_comment?.isCheck) {
+      const result = evaluateByTextComment(
+        comment,
+        evaluate_by_text_comment.data
+      );
+
+      // guardando los resultados
+      element.topLevelComment.isSpam = result.isSpam;
+      result.data.forEach((category) => {
+        element.topLevelComment.spamCategoriesMet.push(category);
+      });
+    }*/
+
+    evaluateComment(comment, element.topLevelComment, evaluation_types);
+
+    for (const replyComment of element.repliesComments) {
+      replyComment.isSpam = false;
+      replyComment.spamCategoriesMet = [];
+
+      comment = preprocessComment(replyComment.snippet.textOriginal);
+
+      // evaluando la respuesta de un comentario
+      evaluateComment(comment, replyComment, evaluation_types);
+
+      /*
+      if (evaluation_types.evaluate_by_text_comment?.isCheck) {
+        evaluateByTextComment(
+          comment,
+          evaluation_types.evaluate_by_text_comment.data
+        );
+      }*/
+    }
+  }
+
+  console.log("commets array after to modify");
+  console.log(comments);
+
+  return comments;
+};
+
 const getSpamComments = async () => {
   // check if credentials were set
   if (!(await checkIsYoutubeDataAPICredentialsSet())) {
@@ -91,12 +192,21 @@ const getSpamComments = async () => {
     throw new Error("Credenciales no establecidas");
   }
 
-  const video_id = getVideoId();
+  const video_id = await getVideoId();
 
-  const comments = await getComments(video_id);
+  // comentado para no gastar tokens de yt en el desarrollo
+  //const comments = await getComments(video_id);
+  //await setValueToLocalStorage("comments", comments);
 
-  console.log("***Comments***");
+  // TODO: WORKING IN THIS PART
+  const comments = await getValueFromLocalStorage("comments");
+
+  console.log("***Comments2***");
   console.log(comments);
+
+  evaluateComments(comments);
+
+  return true;
 };
 
 const getSpamCommentsButton = () => {
