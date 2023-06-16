@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "DEV - Spam remover",
+  "version": "1.0.1",
+
+  "description": "Remove spam comments",
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/watch?v=*"],
+      "css": ["css/my-styles.css"],
+      "js": [
+        "scripts/fontawesome.js",
+        "scripts/utils.js",
+        "scripts/content-script.js"
+      ]
+    }
+  ],
+  "options_page": "options/options.html",
+  "permissions": ["storage", "tabs"]
+}

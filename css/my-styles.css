@@ -1,0 +1,21 @@
+/* ============ BUTTON ============*/
+.get-spam-commment-button {
+  margin-left: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgba(220, 38, 38, 1);
+  font-size: 14px;
+  color: white;
+  border-radius: 18px;
+  padding: 9.5px 15px !important;
+  font: bold;
+  cursor: pointer;
+}
+
+.get-spam-commment-button svg {
+  font-size: 17px !important;
+  margin-right: 5px;
+}
