@@ -127,3 +127,5 @@ const getValueFromLocalStorage = (key) => {
     });
   });
 };
+
+console.log("the first change");
