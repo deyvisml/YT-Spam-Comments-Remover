@@ -13,6 +13,8 @@
       "matches": ["https://www.youtube.com/watch?v=*"],
       "css": ["css/my-styles.css"],
       "js": [
+        "scripts/TextPreprocessor.js",
+        "scripts/MultinomialNB.js",
         "scripts/fontawesome.js",
         "scripts/utils.js",
         "scripts/content-script.js"

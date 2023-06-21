@@ -50,7 +50,7 @@ const getVideoId = async () => {
   return video_id;
 };
 
-const checkIsYoutubeDataAPICredentialsSet = async () => {
+const isYoutubeDataAPICredentialsSet = async () => {
   let is_credentials_set;
 
   try {
@@ -81,7 +81,7 @@ const getComments = async (video_id) => {
   return result.data;
 };
 
-// para obtener cuales son las formas que el usuario seleccionio para evaluar los comentarios
+// para obtener cuales son las formas que el usuario seleccionó para evaluar los comentarios
 const getUserPreferences = async () => {
   // cada uno almacenara un objeto {isCheck: bool, data: []}
   const evaluate_by_image = await getValueFromLocalStorage("evaluate_by_image");
@@ -90,7 +90,10 @@ const getUserPreferences = async () => {
     "evaluate_by_text_comment"
   );
 
-  evaluate_by_text_comment = { isCheck: true, data: [] }; // testing
+  evaluate_by_text_comment = {
+    isCheck: true,
+    data: { categories: ["spam", "bitcoin"] },
+  }; // testing
 
   return {
     evaluate_by_image,
@@ -100,80 +103,116 @@ const getUserPreferences = async () => {
 };
 
 // TODO: This is an important function
-const evaluateByTextComment = (comment, categories) => {
-  // no es una buena idea cargar los modelos aqui, ya que se hara esto por cada comentario
+const evaluateByTextComment = (comment, categories, models_text_comment) => {
+  let isSpam = false;
+  const spamCategoriesMet = [];
 
-  //console.log("codigo para evaluar por el contenido textual de un comentario");
+  const tokens = TextPreprocessor.preprocess(comment);
 
-  return { isSpam: true, data: ["cat xd", "cat xd1"] };
-};
+  for (const category of categories) {
+    const [prediction] = models_text_comment[category].predict([tokens]); //! clasificando un comentario (prediccón)
 
-const preprocessComment = (comment) => {
-  // en esta parte falta implementar el preprocesamiento del comentario (cleaning, tokenization, lematization, etc)
-  return comment;
+    console.log("-> prediction:", tokens, " - ", prediction);
+    if (prediction === "bad") {
+      //! bad only is for testing, it must be "spam" or "true" or 1
+      isSpam = true;
+      spamCategoriesMet.push(category);
+    }
+  }
+
+  return { isSpam, data: spamCategoriesMet };
 };
 
 // este metodo es el mas importante, ya que evalua y ademas guarda en el comentario si es spam o no (no retorna nada, establece los valores se podria considerar por referencia)
 // comment_element es el nivel del objeto en donde se guardara el resultado
-const evaluateComment = async (comment, comment_element, evaluation_types) => {
+const evaluateComment = async (
+  comment,
+  comment_element,
+  evaluation_types,
+  models
+) => {
   const { evaluate_by_image, evaluate_by_name, evaluate_by_text_comment } =
     evaluation_types;
 
-  // evaluando un comentario (los otras formas de evaluar se desarrollaran mas adelante)
+  //! evaluando un comentario (los otras formas de evaluar se desarrollaran mas adelante)
   if (evaluate_by_text_comment?.isCheck) {
     const result = evaluateByTextComment(
       comment,
-      evaluate_by_text_comment.data
+      evaluate_by_text_comment.data.categories,
+      models["text_comment"]
     );
 
     // guardando los resultados
     comment_element.isSpam = result.isSpam;
     result.data.forEach((category) => {
-      comment_element.spamCategoriesMet.push(category);
+      comment_element["spamCategoriesMet"].push(category);
     });
   }
+};
+
+const loadModels = async (evaluation_types) => {
+  const { evaluate_by_image, evaluate_by_name, evaluate_by_text_comment } =
+    evaluation_types;
+
+  const models = {};
+
+  // se cargan todos los modelos que sean requerdios para los distintos tipos de evaluación
+  //! por ahora solo se cargaran los modelos que se utlizen para el tipo de evaluación del texto de los comentarios (evaluate_by_text_comment)
+
+  // este sera verdadero, siempre y cuando almenos una category haya sido seleccionada
+  if (evaluate_by_text_comment?.isCheck) {
+    // para cargar los distintos modelos para las distintas categories de evaluación de comentario de texto (self promo, bitcoin, etc)
+    for (const category of evaluate_by_text_comment.data.categories) {
+      const result = await sendMessage("get-model", category);
+      if (result.errorOccurred)
+        throw new Error(`Error uploading the model: ${category}`);
+      // genearintg the model with json data
+      models["text_comment"] = models["text_comment"] ?? {}; // en ese parte solo se almacenaran los modelos relacionadados al texto del comentario
+      models["text_comment"][category] = MultinomialNB.load(result.data);
+    }
+  }
+
+  return models;
 };
 
 const evaluateComments = async (comments) => {
   // get user preferences
   const evaluation_types = await getUserPreferences();
-
   // load the models (considering evaluation_types)
+  const models = await loadModels(evaluation_types);
 
   // evaluando todos los comentarios
   for (const element of comments) {
     element.topLevelComment.isSpam = false;
     element.topLevelComment.spamCategoriesMet = [];
 
-    let comment = preprocessComment(
-      element.topLevelComment.snippet.textOriginal
-    );
+    let comment = element.topLevelComment.snippet.textOriginal;
 
     // evaluando un comentario (los atributos del resultado se estableceran en element.topLevelComment )
-    evaluateComment(comment, element.topLevelComment, evaluation_types);
+    evaluateComment(comment, element.topLevelComment, evaluation_types, models);
 
     for (const replyComment of element.repliesComments) {
       replyComment.isSpam = false;
       replyComment.spamCategoriesMet = [];
 
-      comment = preprocessComment(replyComment.snippet.textOriginal);
+      comment = replyComment.snippet.textOriginal;
 
-      evaluateComment(comment, replyComment, evaluation_types);
+      evaluateComment(comment, replyComment, evaluation_types, models);
     }
   }
-
-  console.log("commets array after to modify");
-  console.log(comments);
 
   return comments;
 };
 
-const getSpamComments = async () => {
+// TODO: WORKING IN THIS METHOD
+const spamCommentsHandler = async () => {
   // check if credentials were set
-  if (!(await checkIsYoutubeDataAPICredentialsSet())) {
+  if (!(await isYoutubeDataAPICredentialsSet())) {
     await openOptionsPage();
     throw new Error("Credenciales no establecidas");
   }
+
+  // TODO: Display a modal
 
   const video_id = await getVideoId();
 
@@ -182,15 +221,19 @@ const getSpamComments = async () => {
   //await setValueToLocalStorage("comments", comments);
   const comments = await getValueFromLocalStorage("comments");
 
-  console.log("***Comments2***");
-  console.log(comments);
-
   const evaluated_comments = evaluateComments(comments);
+
+  console.log("commets array after being evaluted");
+  console.log(evaluated_comments);
+
+  // TODO: Add evaluated comments to modal
+
+  // TODO: Add user options to modal
 
   return evaluated_comments;
 };
 
-const getSpamCommentsButton = () => {
+const spamCommentsHandlerButton = () => {
   const element = document.createElement("a");
 
   element.innerHTML = `<i class="fa-solid fa-trash-can"></i>
@@ -200,23 +243,23 @@ const getSpamCommentsButton = () => {
   element.classList.add("get-spam-commment-button");
 
   element.addEventListener("click", () => {
-    getSpamComments();
+    spamCommentsHandler();
   });
 
   return element;
 };
 
-const displayGetSpamCommentsButton = () => {
+const displaySpamCommentsHandlerButton = () => {
   (async () => {
     const container = await waitForElement(
       "#header > ytd-comments-header-renderer > #title",
       1000
     );
 
-    const get_spam_commment_button = getSpamCommentsButton();
+    const get_spam_commment_button = spamCommentsHandlerButton();
 
     container.insertAdjacentElement("beforeend", get_spam_commment_button);
   })();
 };
 
-displayGetSpamCommentsButton();
+displaySpamCommentsHandlerButton();

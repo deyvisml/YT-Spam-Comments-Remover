@@ -32,10 +32,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const result = await getComments(video_id);
       sendResponse(result);
     })();
+  } else if (message.action === "get-model") {
+    (async () => {
+      const model_name = message.data;
+      const result = await getModel(model_name);
+      sendResponse(result);
+    })();
   }
 
   return true; // to not close the port of comunication when there is a delay https://stackoverflow.com/a/59915897
 });
+
+const getModel = async (model_name) => {
+  try {
+    const response = await fetch(
+      chrome.runtime.getURL(`models/${model_name}.json`)
+    );
+    const model = await response.json();
+
+    return { errorOccurred: false, data: model };
+  } catch (error) {
+    console.error(error);
+    return { errorOccurred: true, data: null };
+  }
+};
 
 const getCommentsYoutubeDataApi = async (video_id, credentials) => {
   //video_id = "sH7DNJj4vus"; // < 100 comments
@@ -127,5 +147,3 @@ const getValueFromLocalStorage = (key) => {
     });
   });
 };
-
-console.log("the first change");
