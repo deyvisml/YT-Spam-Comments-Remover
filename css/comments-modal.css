@@ -1,0 +1,15 @@
+.comments-modal-container {
+  position: fixed;
+  z-index: 10000;
+
+  width: 100%;
+  height: 100%;
+  background-color: rgba(239, 68, 68, 0.3);
+}
+
+.comments-modal {
+  position: fixed;
+  width: 200px;
+  height: 200px;
+  background-color: rgba(239, 68, 68, 1);
+}

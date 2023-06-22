@@ -11,7 +11,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/watch?v=*"],
-      "css": ["css/my-styles.css"],
+      "css": ["css/spam-comments-handler-btn.css", "css/comments-modal.css"],
       "js": [
         "scripts/TextPreprocessor.js",
         "scripts/MultinomialNB.js",

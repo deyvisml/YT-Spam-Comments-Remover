@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      .aux {
+        width: 200px;
+        height: 3000px;
+        background-color: green;
+      }
+
+      .comments-modal-container {
+        top: 0;
+        left: 0;
+        position: fixed;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+      }
+
+      .comments-modal-container * {
+        margin: 0px;
+        padding: 0px;
+      }
+
+      .background-comments-modal {
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+
+      .comments-modal {
+        z-index: 2;
+        width: 600px;
+        height: 400px;
+        display: flex;
+        gap: 10px 0px;
+        flex-direction: column;
+
+        padding: 20px;
+        border-radius: 12px;
+        background-color: #202120;
+        color: white;
+      }
+
+      /* ==== MODAL HEADER ==== */
+      .modal-header {
+        height: 30px;
+        display: flex;
+        align-items: center;
+
+        background-color: cadetblue;
+      }
+
+      .modal-header h1 {
+        font-size: 20px;
+      }
+
+      .modal-header a.close-modal-btn {
+        margin-left: auto;
+        background-color: red;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      /* ==== MAIN CONTENT ==== */
+      .main-content {
+        flex-grow: 1; /* ocupar todo el espacio disponible */
+        border: 1px solid yellow;
+      }
+
+      .main-content .comments-container {
+        width: 100%;
+        height: 100%;
+        border: 1px solid orangered;
+      }
+
+      .comments-container {
+        overflow-y: auto; /* mostrar barra de desplazamiento solo cuando sea necesario */
+      }
+
+      .comments-container .comment-container {
+        border: 1px solid white;
+      }
+
+      .comment-container article.comment {
+        display: flex;
+        gap: 0px 10px;
+        flex-direction: row;
+      }
+
+      article.comment .comment-author-image-container {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+      }
+
+      .comment-author-image-container img {
+        width: 100%;
+        height: 100%;
+      }
+
+      article.comment .right-side {
+        flex-grow: 1;
+      }
+
+      article.comment .right-side .container-comment-data-and-checkbox {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        width: 100%;
+      }
+
+      .container-comment-data-and-checkbox .is-spam-checkbox {
+        transform: scale(1.4); /* aumentar el tamaño */
+        margin: 10px;
+        margin-left: auto !important;
+      }
+
+      article.comment .container-data p.username {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      article.comment .container-data span.commented-date {
+        font-weight: normal;
+        font-size: 13px;
+        color: gray;
+      }
+
+      article.comment .right-side .show-replies-btn {
+        display: inline-block;
+        font-weight: bold;
+        color: #3ea6ff;
+        padding: 8px 15px;
+        margin: 5px 0px !important;
+        border-radius: 18px;
+        cursor: pointer;
+      }
+
+      article.comment .right-side .show-replies-btn span {
+        padding-left: 8px;
+      }
+
+      article.comment .right-side .show-replies-btn:hover {
+        background-color: rgba(28, 107, 100, 0.3);
+      }
+
+      /* ==== MODAL FOOTER ==== */
+      .modal-footer {
+        height: 30px;
+        background-color: burlywood;
+      }
+    </style>
+
+    <script src="fontawesome.js"></script>
+  </head>
+  <body>
+    <div class="aux">ss</div>
+
+    <div class="comments-modal-container">
+      <div class="background-comments-modal"></div>
+      <div class="comments-modal">
+        <div class="modal-header">
+          <h1>YT Spam Comments Remover</h1>
+          <a class="close-modal-btn"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+
+        <main class="main-content">
+          <div class="comments-container">
+            <div class="comment-container">
+              <article class="comment">
+                <div class="left-side comment-author-image-container">
+                  <img
+                    src="https://www.w3schools.com/howto/img_avatar.png"
+                    alt=""
+                  />
+                </div>
+
+                <div class="right-side">
+                  <div class="container-comment-data-and-checkbox">
+                    <div class="container-data">
+                      <p class="username">
+                        username <span class="commented-date">2 years ago</span>
+                      </p>
+
+                      <p class="text-comment">Lorem ipsum dolor sit amet.</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      class="is-spam-checkbox"
+                      name="is-span"
+                      id="is-span"
+                    />
+                  </div>
+
+                  <a class="show-replies-btn"
+                    ><i class="fa-solid fa-caret-down"></i
+                    ><span># respuestas</span></a
+                  >
+
+                  <div class="replies">
+                    <div class="comment">
+                      <p>comment reply</p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </main>
+
+        <div class="modal-footer">
+          <select name="select-spam-comments" id="select-spam-comments">
+            <option value="">Remove</option>
+            <option value="">Report</option>
+          </select>
+          <a> Execute </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const background_comments_modal = document.querySelector(
+        ".background-comments-modal"
+      );
+
+      background_comments_modal.addEventListener("click", () => {
+        document.querySelector(".comments-modal-container").remove();
+      });
+    </script>
+  </body>
+</html>

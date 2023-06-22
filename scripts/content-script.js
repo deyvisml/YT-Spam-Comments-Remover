@@ -44,7 +44,7 @@ const getVideoId = async () => {
       throw new Error("No se pudo obtener la url actual");
     }
   } catch (error) {
-    console.error(error);
+    throw new Error(error);
   }
 
   return video_id;
@@ -204,6 +204,28 @@ const evaluateComments = async (comments) => {
   return comments;
 };
 
+const commentsModal = () => {
+  const element = document.createElement("div");
+  element.classList.add("comments-modal-container");
+
+  element.innerHTML = `<i class="fa-solid fa-trash-can"></i>
+                    <span>Spam comments</span>`;
+
+  element.addEventListener("click", () => {
+    alert("Working");
+  });
+
+  return element;
+};
+
+const displayCommentsModal = async () => {
+  const container = await waitForElement("body", 1000);
+
+  const comments_modal = commentsModal();
+
+  container.insertAdjacentElement("beforeend", comments_modal);
+};
+
 // TODO: WORKING IN THIS METHOD
 const spamCommentsHandler = async () => {
   // check if credentials were set
@@ -213,6 +235,7 @@ const spamCommentsHandler = async () => {
   }
 
   // TODO: Display a modal
+  displayCommentsModal();
 
   const video_id = await getVideoId();
 
@@ -221,7 +244,7 @@ const spamCommentsHandler = async () => {
   //await setValueToLocalStorage("comments", comments);
   const comments = await getValueFromLocalStorage("comments");
 
-  const evaluated_comments = evaluateComments(comments);
+  const evaluated_comments = await evaluateComments(comments);
 
   console.log("commets array after being evaluted");
   console.log(evaluated_comments);
@@ -239,7 +262,6 @@ const spamCommentsHandlerButton = () => {
   element.innerHTML = `<i class="fa-solid fa-trash-can"></i>
                     <span>Spam comments</span>`;
 
-  //element.innerText = "Spam comments";
   element.classList.add("get-spam-commment-button");
 
   element.addEventListener("click", () => {
@@ -249,17 +271,15 @@ const spamCommentsHandlerButton = () => {
   return element;
 };
 
-const displaySpamCommentsHandlerButton = () => {
-  (async () => {
-    const container = await waitForElement(
-      "#header > ytd-comments-header-renderer > #title",
-      1000
-    );
+const displaySpamCommentsHandlerButton = async () => {
+  const container = await waitForElement(
+    "#header > ytd-comments-header-renderer > #title",
+    1000
+  );
 
-    const get_spam_commment_button = spamCommentsHandlerButton();
+  const spam_comments_handler_button = spamCommentsHandlerButton();
 
-    container.insertAdjacentElement("beforeend", get_spam_commment_button);
-  })();
+  container.insertAdjacentElement("beforeend", spam_comments_handler_button);
 };
 
 displaySpamCommentsHandlerButton();
