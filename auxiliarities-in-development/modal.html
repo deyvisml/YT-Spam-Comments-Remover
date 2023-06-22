@@ -41,7 +41,7 @@
       .comments-modal {
         z-index: 2;
         width: 600px;
-        height: 400px;
+        height: 500px;
         display: flex;
         gap: 10px 0px;
         flex-direction: column;
@@ -58,7 +58,7 @@
         display: flex;
         align-items: center;
 
-        background-color: cadetblue;
+        border: 1px solid cadetblue;
       }
 
       .modal-header h1 {
@@ -67,7 +67,6 @@
 
       .modal-header a.close-modal-btn {
         margin-left: auto;
-        background-color: red;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -78,59 +77,66 @@
         cursor: pointer;
       }
 
+      .modal-header a.close-modal-btn:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+
       /* ==== MAIN CONTENT ==== */
-      .main-content {
-        flex-grow: 1; /* ocupar todo el espacio disponible */
+      .body-modal {
+        height: 83%; /* determina el alto de la sección en donde se mostraran los comentarios */
+
         border: 1px solid yellow;
       }
 
-      .main-content .comments-container {
+      .body-modal .comments-container {
         width: 100%;
         height: 100%;
-        border: 1px solid orangered;
       }
 
       .comments-container {
+        overflow-x: hidden;
         overflow-y: auto; /* mostrar barra de desplazamiento solo cuando sea necesario */
       }
 
-      .comments-container .comment-container {
-        border: 1px solid white;
-      }
-
-      .comment-container article.comment {
+      article.comment {
+        width: 100%;
         display: flex;
-        gap: 0px 10px;
+        gap: 0px 13px;
         flex-direction: row;
+        border: 1px solid white;
+        cursor: pointer;
+        margin-bottom: 10px;
       }
 
-      article.comment .comment-author-image-container {
+      article.comment * {
+        cursor: pointer;
+      }
+
+      article.comment:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+
+      article.comment .comment-left-side {
+        width: 40px !important;
+      }
+
+      .comment-author-image-container img {
         width: 40px;
         height: 40px;
         border-radius: 50%;
         overflow: hidden;
       }
 
-      .comment-author-image-container img {
-        width: 100%;
-        height: 100%;
-      }
-
-      article.comment .right-side {
+      article.comment .comment-right-side {
         flex-grow: 1;
-      }
-
-      article.comment .right-side .container-comment-data-and-checkbox {
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
-        width: 100%;
       }
 
-      .container-comment-data-and-checkbox .is-spam-checkbox {
-        transform: scale(1.4); /* aumentar el tamaño */
-        margin: 10px;
-        margin-left: auto !important;
+      article.comment
+        .comment-right-side
+        .container-comment-data-and-spam-categories-matched {
+        flex-grow: 1;
       }
 
       article.comment .container-data p.username {
@@ -144,28 +150,87 @@
         color: gray;
       }
 
-      article.comment .right-side .show-replies-btn {
-        display: inline-block;
+      article.comment .container-data a.show-more-less-text-btn {
+        color: #aaa;
         font-weight: bold;
-        color: #3ea6ff;
-        padding: 8px 15px;
-        margin: 5px 0px !important;
-        border-radius: 18px;
-        cursor: pointer;
+        font-size: 12px;
+        margin: 4px 0px;
+        display: inline-block;
       }
 
-      article.comment .right-side .show-replies-btn span {
-        padding-left: 8px;
+      article.comment .container-data a.show-more-less-text-btn:hover {
+        text-decoration: underline;
       }
 
-      article.comment .right-side .show-replies-btn:hover {
-        background-color: rgba(28, 107, 100, 0.3);
+      article.comment .spam-categories-matched-container {
+        list-style: none;
+        display: flex;
+        margin-top: 8px;
+        gap: 0px 5px;
+      }
+
+      article.comment .spam-categories-matched-container li {
+        font-size: 13px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background-color: cadetblue;
+      }
+
+      article.comment input.is-spam-checkbox {
+        transform: scale(1.4); /* aumentar el tamaño */
+        margin: 10px;
+        margin-left: auto !important;
       }
 
       /* ==== MODAL FOOTER ==== */
       .modal-footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        font-size: 13px;
         height: 30px;
-        background-color: burlywood;
+        gap: 0px 10px;
+        border: 1px solid burlywood;
+      }
+
+      .modal-footer select.select-actions-spam-comments {
+        padding: 5px 10px;
+        border-radius: 3px;
+        outline: none;
+      }
+
+      .modal-footer a.execute-btn {
+        border-radius: 3px;
+        padding: 8px 23px;
+        font-weight: bold;
+        color: black;
+        border-radius: 18px;
+        background-color: #3fa6fe;
+        cursor: pointer;
+      }
+
+      .modal-footer a.execute-btn:hover {
+        background-color: #2685d8;
+      }
+
+      .evaluating-comments-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 15px 0px;
+      }
+
+      .evaluating-comments-container p {
+        font-size: 15px;
+        font-weight: bold;
+      }
+
+      .evaluating-comments-container img {
+        width: 110px;
       }
     </style>
 
@@ -182,68 +247,308 @@
           <a class="close-modal-btn"><i class="fa-solid fa-xmark"></i></a>
         </div>
 
-        <main class="main-content">
+        <main class="body-modal">
           <div class="comments-container">
-            <div class="comment-container">
-              <article class="comment">
-                <div class="left-side comment-author-image-container">
-                  <img
-                    src="https://www.w3schools.com/howto/img_avatar.png"
-                    alt=""
+            <article class="comment" id="comment_id_1">
+              <div class="comment-left-side comment-author-image-container">
+                <img
+                  src="https://www.w3schools.com/howto/img_avatar.png"
+                  alt=""
+                />
+              </div>
+
+              <div class="comment-right-side">
+                <div class="container-comment-data-and-spam-categories-matched">
+                  <div class="container-data">
+                    <p class="username">
+                      username <span class="commented-date">2 years ago</span>
+                    </p>
+
+                    <p
+                      class="text-comment"
+                      data-full-text-comment="this is the full comment xd"
+                    >
+                      Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                      Itaque odio fugit veniam at magni! Dolorem ab velit
+                      voluptatem voluptas quae.
+                    </p>
+                    <a
+                      class="show-more-less-text-btn"
+                      id="show-more"
+                      data-comment-id="comment_id_1"
+                      >Leer más</a
+                    >
+                  </div>
+
+                  <ul class="spam-categories-matched-container">
+                    <li class="spam-category-matched">category 1</li>
+                    <li class="spam-category-matched">category 2</li>
+                  </ul>
+                </div>
+
+                <div class="is-spam-checkbox-container">
+                  <input
+                    type="checkbox"
+                    class="is-spam-checkbox"
+                    name="is-spam-checkbox"
+                    data-spam-comment-id="comment_01"
+                    checked
                   />
                 </div>
-
-                <div class="right-side">
-                  <div class="container-comment-data-and-checkbox">
-                    <div class="container-data">
-                      <p class="username">
-                        username <span class="commented-date">2 years ago</span>
-                      </p>
-
-                      <p class="text-comment">Lorem ipsum dolor sit amet.</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      class="is-spam-checkbox"
-                      name="is-span"
-                      id="is-span"
-                    />
-                  </div>
-
-                  <a class="show-replies-btn"
-                    ><i class="fa-solid fa-caret-down"></i
-                    ><span># respuestas</span></a
-                  >
-
-                  <div class="replies">
-                    <div class="comment">
-                      <p>comment reply</p>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            </div>
+              </div>
+            </article>
           </div>
         </main>
 
         <div class="modal-footer">
-          <select name="select-spam-comments" id="select-spam-comments">
+          <select
+            name="select-actions-spam-comments"
+            class="select-actions-spam-comments"
+            id="select-actions-spam-comments"
+          >
             <option value="">Remove</option>
             <option value="">Report</option>
           </select>
-          <a> Execute </a>
+          <a class="execute-btn"> Execute </a>
         </div>
       </div>
     </div>
 
     <script>
-      const background_comments_modal = document.querySelector(
-        ".background-comments-modal"
+      const comments = document.querySelectorAll(".comment");
+
+      for (const comment of comments) {
+        comment.addEventListener("click", () => {
+          // if to exclude checkbox and show-more-less-text buttons
+          if (
+            !event.target.classList.contains("is-spam-checkbox") &&
+            !event.target.classList.contains("show-more-less-text-btn")
+          ) {
+            const checkbox = comment.querySelector('input[type="checkbox"]');
+            checkbox.checked = checkbox.checked ? false : true;
+          }
+        });
+      }
+    </script>
+
+    <script>
+      const show_more_less_btns = document.querySelectorAll(
+        ".show-more-less-text-btn"
       );
 
-      background_comments_modal.addEventListener("click", () => {
-        document.querySelector(".comments-modal-container").remove();
+      show_more_less_btns.forEach((show_more_less_btn) => {
+        show_more_less_btn.addEventListener("click", (event) => {
+          const current_btn = event.target;
+          let show_more = true;
+          const max_chars = 40;
+
+          if (current_btn.id == "show-less") show_more = false;
+
+          const comment_id = current_btn.dataset.commentId;
+
+          const text_comment_element = document.querySelector(
+            `#${comment_id} .text-comment`
+          );
+
+          const full_text_comment =
+            text_comment_element.dataset.fullTextComment;
+
+          if (show_more) {
+            text_comment_element.innerHTML = full_text_comment; // setting the full text
+            current_btn.innerText = "Mostrar menos";
+            current_btn.id = "show-less";
+          } else {
+            const truncated_text_comment =
+              full_text_comment.substring(0, max_chars) + "...";
+            text_comment_element.innerHTML = truncated_text_comment; // setting the full text
+            current_btn.innerText = "Leer más";
+            current_btn.id = "show-more";
+          }
+        });
       });
+    </script>
+
+    <!-- ADDING ELEMENTS DINAMICALLY -->
+    <script>
+      const create_comments_modal = () => {
+        const comments_modal = document.createElement("div");
+        comments_modal.classList.add("comments-modal");
+
+        comments_modal.innerHTML = `<div class="modal-header">
+                                      <h1>YT Spam Comments Remover</h1>
+                                      <a class="close-modal-btn"><i class="fa-solid fa-xmark"></i></a>
+                                    </div>
+
+                                    <main class="body-modal">
+                                      <div class="evaluating-comments-container">
+                                        <p>Evaluando todos los comentarios...</p>
+                                        <img
+                                          src="http://cdn.lowgif.com/small/dad993fb030414a7-running-pikachu-animation-pkmn-awesome-arts.gif"
+                                          alt=""
+                                        />
+                                        <p>(Por favor espere)</p>
+                                      </div>
+                                    </main>
+
+                                    <div class="modal-footer"></div>`;
+        return comments_modal;
+      };
+
+      const create_modal = () => {
+        /*const comments_modal_container = document.createElement("div");
+        comments_modal_container.classList.add("comments-modal-container");
+
+        const background_comments_modal = document.createElement("div");
+        background_comments_modal.classList.add("background-comments-modal");
+
+        const comments_modal = create_comments_modal();
+
+        comments_modal_container.insertAdjacentElement(
+          "beforeend",
+          background_comments_modal
+        );
+        comments_modal_container.insertAdjacentElement(
+          "beforeend",
+          comments_modal
+        );*/
+
+        const modal = document.createElement("div");
+        modal.classList.add("comments-modal-container");
+
+        modal.innerHTML = `<div class="background-comments-modal"></div>
+                          <div class="comments-modal">
+
+                            <div class="modal-header">
+                              <h1>YT Spam Comments Remover</h1>
+                              <a class="close-modal-btn"><i class="fa-solid fa-xmark"></i></a>
+                            </div>
+
+                            <main class="body-modal">
+                              <div class="evaluating-comments-container">
+                                <p>Evaluando todos los comentarios...</p>
+                                <img
+                                  src="http://cdn.lowgif.com/small/dad993fb030414a7-running-pikachu-animation-pkmn-awesome-arts.gif"
+                                  alt=""
+                                />
+                                <p>(Por favor espere)</p>
+                              </div>
+                            </main>
+
+                            <div class="modal-footer"></div>
+                          </div>`;
+        return modal;
+      };
+
+      const display_modal = () => {
+        const modal = create_modal();
+
+        const body_element = document.querySelector("body");
+        body_element.insertAdjacentElement("beforeend", modal);
+
+        // setting events related to the elemente just created and injected
+        const background_comments_modal = document.querySelector(
+          ".background-comments-modal"
+        );
+        background_comments_modal.addEventListener("click", () => {
+          document.querySelector(".comments-modal-container").remove();
+        });
+
+        const close_modal_btn = document.querySelector(".close-modal-btn");
+        close_modal_btn.addEventListener("click", () => {
+          document.querySelector(".comments-modal-container").remove();
+        });
+      };
+
+      display_modal();
+    </script>
+
+    <script>
+      const create_comment = (comment_data) => {
+        const {
+          comment_id,
+          photo_url,
+          username,
+          date_commented,
+          text_comment,
+          spam_categories_matched,
+        } = comment_data;
+
+        const comment = document.createElement("article");
+        comment.classList.add("comment");
+        comment.id = comment_id;
+
+        comment.innerHTML = `<div class="comment-left-side comment-author-image-container">
+                              <img
+                                src="https://www.w3schools.com/howto/img_avatar.png"
+                                alt=""
+                              />
+                            </div>
+
+                            <div class="comment-right-side">
+                              <div class="container-comment-data-and-spam-categories-matched">
+                                <div class="container-data">
+                                  <p class="username">
+                                    username <span class="commented-date">2 years ago</span>
+                                  </p>
+
+                                  <p
+                                    class="text-comment"
+                                    data-full-text-comment="this is the full comment xd"
+                                  >
+                                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                                    Itaque odio fugit veniam at magni! Dolorem ab velit
+                                    voluptatem voluptas quae.
+                                  </p>
+                                  <a
+                                    class="show-more-less-text-btn"
+                                    id="show-more"
+                                    data-comment-id="comment_id_1"
+                                    >Leer más</a
+                                  >
+                                </div>
+
+                                <ul class="spam-categories-matched-container">
+                                  <li class="spam-category-matched">category 1</li>
+                                  <li class="spam-category-matched">category 2</li>
+                                </ul>
+                              </div>
+
+                              <div class="is-spam-checkbox-container">
+                                <input
+                                  type="checkbox"
+                                  class="is-spam-checkbox"
+                                  name="is-spam-checkbox"
+                                  data-spam-comment-id="comment_01"
+                                  checked
+                                />
+                              </div>
+                            </div>`;
+
+        return comment;
+      };
+
+      const create_comments = (comments) => {
+        const comments_container = document.createElement("div");
+        comments_container.classList.add("comments-container");
+
+        for (const comment of comments) {
+          const comment_element = create_comment(comment);
+
+          comments_container.insertAdjacentElement(
+            "beforeend",
+            comment_element
+          );
+        }
+
+        return comments_container;
+      };
+
+      const display_comments_into_modal = (comments) => {
+        const comments_container = create_comments();
+
+        const body_modal = document.querySelector("body-modal");
+        body_modal = comments_container.outerHTML;
+      };
     </script>
   </body>
 </html>
