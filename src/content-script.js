@@ -1,15 +1,3 @@
-const waitForElement = (selector, time) => {
-  return new Promise((resolve, reject) => {
-    const intervalId = setInterval(() => {
-      const element = document.querySelector(selector);
-      if (element) {
-        clearInterval(intervalId);
-        resolve(element);
-      }
-    }, time);
-  });
-};
-
 const sendMessage = async (action, data) => {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage({ action, data }, (response) => {
@@ -204,82 +192,83 @@ const evaluateComments = async (comments) => {
   return comments;
 };
 
-const commentsModal = () => {
-  const element = document.createElement("div");
-  element.classList.add("comments-modal-container");
+const filterSpamComments = (evaluated_comments) => {
+  const spam_comments = [];
 
-  element.innerHTML = `<i class="fa-solid fa-trash-can"></i>
-                    <span>Spam comments</span>`;
+  for (const evaluated_comment of evaluated_comments) {
+    if (evaluated_comment.topLevelComment.isSpam) {
+      spam_comments.push(evaluated_comment.topLevelComment);
+    }
 
-  element.addEventListener("click", () => {
-    alert("Working");
-  });
+    if ("repliesComments" in evaluated_comment) {
+      for (const reply_comment of evaluated_comment.repliesComments) {
+        if (reply_comment.isSpam) {
+          spam_comments.push(reply_comment);
+        }
+      }
+    }
+  }
 
-  return element;
-};
-
-const displayCommentsModal = async () => {
-  const container = await waitForElement("body", 1000);
-
-  const comments_modal = commentsModal();
-
-  container.insertAdjacentElement("beforeend", comments_modal);
+  return spam_comments;
 };
 
 // TODO: WORKING IN THIS METHOD
-const spamCommentsHandler = async () => {
+const buttonHandler = async () => {
   // check if credentials were set
   if (!(await isYoutubeDataAPICredentialsSet())) {
     await openOptionsPage();
     throw new Error("Credenciales no establecidas");
   }
 
-  // TODO: Display a modal
-  displayCommentsModal();
+  // TODO: Display a modal and then a loader
+  display_modal_into_body();
+  display_evaluating_loader_into_modal_body();
 
   const video_id = await getVideoId();
 
   // comentado para no gastar tokens de yt en el desarrollo
   //const comments = await getComments(video_id);
   //await setValueToLocalStorage("comments", comments);
+
   const comments = await getValueFromLocalStorage("comments");
 
   const evaluated_comments = await evaluateComments(comments);
-
-  console.log("commets array after being evaluted");
+  console.log("-> Evaluted comments");
   console.log(evaluated_comments);
 
-  // TODO: Add evaluated comments to modal
+  const spam_comments = filterSpamComments(evaluated_comments);
+  console.log("-> Filtered comments");
+  console.log(spam_comments);
+
+  // Add spam comments to modal
+  display_comments_into_modal_body(spam_comments);
+
+  // TODO: Get user options
+  const options = [
+    { key: "remove", name: "Action 1" },
+    { key: "report", name: "Action 2" },
+  ];
 
   // TODO: Add user options to modal
-
-  return evaluated_comments;
+  display_modal_footer_content_into_modal_footer(options);
 };
 
-const spamCommentsHandlerButton = () => {
-  const element = document.createElement("a");
+const execute = () => {
+  // get id from checked spam comments
+  const spam_comments_id_checked = get_spam_comments_id_checked();
 
-  element.innerHTML = `<i class="fa-solid fa-trash-can"></i>
-                    <span>Spam comments</span>`;
+  // get selected option
+  const selected_option = get_selected_option();
+  console.log(selected_option);
 
-  element.classList.add("get-spam-commment-button");
+  // display executing loader (it also hide the modal footer)
+  display_executing_loader(selected_option, spam_comments_id_checked.length);
 
-  element.addEventListener("click", () => {
-    spamCommentsHandler();
-  });
+  // execute_option(selected_option) this method belongs to the content script
+  const result = { errorOcurred: false, data: "Mensaje succed xd" };
 
-  return element;
+  // displaying the final result
+  //display_result(result);
 };
 
-const displaySpamCommentsHandlerButton = async () => {
-  const container = await waitForElement(
-    "#header > ytd-comments-header-renderer > #title",
-    1000
-  );
-
-  const spam_comments_handler_button = spamCommentsHandlerButton();
-
-  container.insertAdjacentElement("beforeend", spam_comments_handler_button);
-};
-
-displaySpamCommentsHandlerButton();
+display_button();

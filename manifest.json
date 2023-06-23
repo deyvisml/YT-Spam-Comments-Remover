@@ -5,19 +5,23 @@
 
   "description": "Remove spam comments",
   "background": {
-    "service_worker": "service-worker.js",
+    "service_worker": "src/service-worker.js",
     "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/watch?v=*"],
-      "css": ["css/spam-comments-handler-btn.css", "css/comments-modal.css"],
+      "css": ["src/button/button.css", "src/modal/modal.css"],
       "js": [
-        "scripts/TextPreprocessor.js",
-        "scripts/MultinomialNB.js",
-        "scripts/fontawesome.js",
-        "scripts/utils.js",
-        "scripts/content-script.js"
+        "src/machine-learning/TextPreprocessor.js",
+        "src/machine-learning/MultinomialNB.js",
+        "src/libs/fontawesome.js",
+        "src/button/button.js",
+        "src/modal/modal-utils.js",
+        "src/modal/modal-events.js",
+        "src/modal/modal.js",
+        "src/utils.js",
+        "src/content-script.js"
       ]
     }
   ],

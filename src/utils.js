@@ -1,3 +1,15 @@
+const waitForElement = (selector, time) => {
+  return new Promise((resolve, reject) => {
+    const intervalId = setInterval(() => {
+      const element = document.querySelector(selector);
+      if (element) {
+        clearInterval(intervalId);
+        resolve(element);
+      }
+    }, time);
+  });
+};
+
 const setValueToLocalStorage = (key, value) => {
   return new Promise((resolve, reject) => {
     // https://share.bito.co/static/share?aid=758fea78-99b6-4b1b-a6da-61a32b136739
