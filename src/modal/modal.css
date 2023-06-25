@@ -175,8 +175,8 @@ article.comment .spam-categories-matched-container li.bitcoin {
 }
 
 article.comment .is-spam-checkbox-container {
-  min-width: 25px;
-  padding-left: 5px;
+  min-width: 30px;
+  padding-left: 2px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;

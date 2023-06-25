@@ -141,27 +141,6 @@
 
     <script>
       /*business logic*/
-
-      const execute = () => {
-        // get id from checked spam comments
-        const spam_comments_id_checked = get_spam_comments_id_checked();
-
-        // get selected option
-        const selected_option = get_selected_option();
-        console.log(selected_option);
-
-        // display executing loader (it also hide the modal footer)
-        display_executing_loader(
-          selected_option,
-          spam_comments_id_checked.length
-        );
-
-        // execute_option(selected_option) this method belongs to the content script
-        const result = { errorOcurred: true, data: "Mensaje succed xd" };
-
-        // displaying the final result
-        display_result(result);
-      };
     </script>
   </body>
 </html>

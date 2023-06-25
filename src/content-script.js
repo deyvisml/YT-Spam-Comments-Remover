@@ -228,6 +228,7 @@ const buttonHandler = async () => {
 
   // comentado para no gastar tokens de yt en el desarrollo
   //const comments = await getComments(video_id);
+  //console.log(comments);
   //await setValueToLocalStorage("comments", comments);
 
   const comments = await getValueFromLocalStorage("comments");
@@ -243,6 +244,10 @@ const buttonHandler = async () => {
   // Add spam comments to modal
   display_comments_into_modal_body(spam_comments);
 
+  // TODO: Verify if the set token belongs to channel that created this video (video_id)
+  const is_video_author = isVideoAuthor(video_id);
+  // hasSetTokenDeleteCommentsPermisson(video_id)
+
   // TODO: Get user options
   const options = [
     { key: "remove", name: "Action 1" },
@@ -254,6 +259,8 @@ const buttonHandler = async () => {
 };
 
 const execute = () => {
+  console.log("OAUTH RUNNING");
+  oauth2SignIn();
   // get id from checked spam comments
   const spam_comments_id_checked = get_spam_comments_id_checked();
 
