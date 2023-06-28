@@ -1,3 +1,5 @@
+const YOUTUBE_URI = "https://youtube.googleapis.com/youtube/v3/";
+
 /**
  * LImpiar el storage local y la cache de google auth (esto para permitir al usuario ingresar una cuenta cualquiera)
  */
@@ -38,10 +40,112 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const result = await getModel(model_name);
       sendResponse(result);
     })();
+  } else if (message.action === "verify-is-access-token-alive") {
+    (async () => {
+      const result = await verifyIsAccessTokenAlive();
+      sendResponse(result);
+    })();
+  } else if (message.action === "get-video-data") {
+    (async () => {
+      const video_id = message.data;
+      const result = await getVideoData(video_id);
+      sendResponse(result);
+    })();
+  } else if (message.action === "get-channel-data-logged-user") {
+    (async () => {
+      const result = await getChannelDataLoggedUser();
+      sendResponse(result);
+    })();
   }
 
   return true; // to not close the port of comunication when there is a delay https://stackoverflow.com/a/59915897
 });
+
+const getChannelDataLoggedUser = async () => {
+  const access_token = await getValueFromLocalStorage("access_token");
+  if (!access_token) return { errorOccurred: true, data: false };
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${access_token}`,
+      "Content-Type": "application/json",
+    };
+
+    const response = await fetch(
+      YOUTUBE_URI + `channels?part=id,snippet&mine=true`,
+      {
+        method: "GET",
+        headers: headers,
+      }
+    );
+
+    const data = await response.json();
+
+    return { errorOccurred: false, data: data };
+  } catch (error) {
+    console.error(error);
+    return { errorOccurred: true, data: null };
+  }
+};
+
+const getVideoData = async (video_id) => {
+  const access_token = await getValueFromLocalStorage("access_token");
+  if (!access_token) return { errorOccurred: true, data: false };
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${access_token}`,
+      "Content-Type": "application/json",
+    };
+
+    const response = await fetch(
+      YOUTUBE_URI + `videos?part=id,snippet&id=${video_id}`,
+      {
+        method: "GET",
+        headers: headers,
+      }
+    );
+
+    const data = await response.json();
+
+    return { errorOccurred: false, data: data };
+  } catch (error) {
+    console.error(error);
+    return { errorOccurred: true, data: null };
+  }
+};
+
+const verifyIsAccessTokenAlive = async () => {
+  console.log("working");
+  const access_token = await getValueFromLocalStorage("access_token");
+
+  if (!access_token) return { errorOccurred: true, data: false };
+
+  try {
+    // we only call this endpoint to verify if the access token is alive
+    const headers = {
+      Authorization: `Bearer ${access_token}`,
+      "Content-Type": "application/json",
+    };
+
+    const response = await fetch(
+      YOUTUBE_URI + `channels?part=id,snippet&mine=true`,
+      {
+        method: "GET",
+        headers: headers,
+      }
+    );
+
+    const data = await response.json();
+
+    console.log("the access token is alive");
+
+    return { errorOccurred: false, data: true };
+  } catch (error) {
+    console.error("Error:", error);
+    return { errorOccurred: false, data: false }; // both false in this line are ok
+  }
+};
 
 const getModel = async (model_name) => {
   try {

@@ -341,3 +341,36 @@ const display_modal_footer_content_into_modal_footer = (options) => {
 
 /* ============================================================ */
 /* ============================================================ */
+
+/*
+/**
+ *
+ * @param {Object} params Values that define the custom content that will be created
+ * @returns custom content element
+ 
+const create_custom_content = (params) => {
+  const { text_header, url_imge, text_footer } = params;
+
+  const custom_content = document.createElement("div");
+  custom_content.className = "custom-content-container";
+  custom_content.innerHTML = `<p>${text_header}</p>
+    <img
+    src="${url_imge}"
+    alt=""
+    />
+    <p>${text_footer}</p>`;
+
+  return custom_content;
+};
+
+/**
+ * Display a custom content into modal body (so firstly it's created a custom content)
+ * @param {params} params Values that  define the custom content that will be created
+ 
+const display_custom_content_into_modal_body = (params) => {
+  const custom_content = create_custom_content(params);
+
+  const modal_body = document.querySelector(".modal-body");
+  modal_body.replaceChildren(custom_content);
+};
+*/

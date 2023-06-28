@@ -23,6 +23,10 @@
         "src/utils.js",
         "src/content-script.js"
       ]
+    },
+    {
+      "matches": ["https://www.google.com/*", "https://duckduckgo.com/*"],
+      "js": ["src/utils.js", "src/google-script.js"]
     }
   ],
   "options_page": "options/options.html",

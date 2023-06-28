@@ -212,19 +212,106 @@ const filterSpamComments = (evaluated_comments) => {
   return spam_comments;
 };
 
-// TODO: WORKING IN THIS METHOD
-const buttonHandler = async () => {
-  // check if credentials were set
-  if (!(await isYoutubeDataAPICredentialsSet())) {
-    await openOptionsPage();
-    throw new Error("Credenciales no establecidas");
+const is_client_id_set = async () => {
+  const client_id_input_datas = await getValueFromLocalStorage(
+    "client_id_input_datas"
+  );
+
+  return !!client_id_input_datas; // casting to a boolean result
+};
+
+const is_there_access_token = async () => {
+  const access_token = await getValueFromLocalStorage("access_token");
+
+  return !!access_token;
+};
+
+const is_access_token_alive = async () => {
+  const result = await sendMessage("verify-is-access-token-alive", null);
+
+  if (result.errorOccurred)
+    throw new Error("Error verifying if the access token is alive");
+
+  return result.data;
+};
+
+const get_client_id = async () => {
+  const client_id_input_datas = await getValueFromLocalStorage(
+    "client_id_input_datas"
+  );
+
+  for (const client_id_input_data of client_id_input_datas) {
+    if (client_id_input_data.checked) {
+      return client_id_input_data.client_id;
+    }
   }
+
+  return null;
+};
+
+const isVideoAuthor = async (video_id) => {
+  // get video data
+  let video_data = null;
+  const result = await sendMessage("get-video-data", video_id);
+  if (result.errorOccurred) throw new Error("Error getting the video data");
+  else video_data = result.data;
+
+  // get channel data logged user
+  let channel_data_logged_user = null;
+  const restul2 = await sendMessage("get-channel-data-logged-user", null);
+  if (result.errorOccurred)
+    throw new Error("Error getting the channel data of the logged user");
+  else channel_data_logged_user = restul2.data;
+
+  // verifying
+  //console.log("video_data:", video_data);
+  //console.log("channel_data_logged_user:", channel_data_logged_user);
+
+  let video_made_by_channel_id = null;
+  let channel_id_logged_user = null;
+  try {
+    video_made_by_channel_id = video_data.items[0].snippet.channelId;
+    channel_id_logged_user = channel_data_logged_user.items[0].id;
+  } catch (error) {
+    throw new Error(
+      "Error at verifying if the current user is the video author, problems accessing to the id's"
+    );
+  }
+
+  if (video_made_by_channel_id == channel_id_logged_user) return true;
+
+  return false;
+};
+
+// TODO: WORKING IN THIS METHOD
+const main = async () => {
+  // START verificating proccess
+
+  if (!(await is_client_id_set())) {
+    alert("There is not a Client ID set, please first do it.");
+    await openOptionsPage();
+    return;
+  }
+
+  if (!(await is_there_access_token()) || !(await is_access_token_alive())) {
+    alert("You need to sign-in first.");
+    const client_id = await get_client_id();
+    oauth2SignIn(client_id);
+    return;
+  }
+
+  // END verificating proccess
+
+  //const access_token = await getValueFromLocalStorage("access_token");
+  const video_id = await getVideoId(); // TODO: This method would be improve (without interacting with sw)
+
+  const is_video_author = await isVideoAuthor(video_id);
+
+  return true;
 
   // TODO: Display a modal and then a loader
   display_modal_into_body();
   display_evaluating_loader_into_modal_body();
-
-  const video_id = await getVideoId();
 
   // comentado para no gastar tokens de yt en el desarrollo
   //const comments = await getComments(video_id);
@@ -241,11 +328,12 @@ const buttonHandler = async () => {
   console.log("-> Filtered comments");
   console.log(spam_comments);
 
+  return true;
   // Add spam comments to modal
   display_comments_into_modal_body(spam_comments);
 
   // TODO: Verify if the set token belongs to channel that created this video (video_id)
-  const is_video_author = isVideoAuthor(video_id);
+  //const is_video_author = isVideoAuthor(video_id);
   // hasSetTokenDeleteCommentsPermisson(video_id)
 
   // TODO: Get user options

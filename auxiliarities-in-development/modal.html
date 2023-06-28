@@ -12,7 +12,7 @@
   <body>
     <div class="aux">ss</div>
 
-    <!--<div class="comments-modal-container">
+    <div class="comments-modal-container">
       <div class="background-comments-modal"></div>
       <div class="comments-modal">
         <div class="modal-header">
@@ -21,7 +21,7 @@
         </div>
 
         <main class="modal-body">
-          <div class="comments-container">
+          <!--<div class="comments-container">
             <article class="comment" id="comment_id_1">
               <div class="comment-left-side comment-author-image-container">
                 <img
@@ -70,11 +70,28 @@
                 </div>
               </div>
             </article>
+          </div>-->
+          <div class="welcome">
+            <div class="channel-photo-container">
+              <img
+                src="https://www.w3schools.com/howto/img_avatar.png"
+                alt=""
+              />
+            </div>
+            <a href="xdxd" target="_blank" class="channel-url">Channel name</a>
+            <p class="video-author-info is-video-author is-not-video-author">
+              [You are the author of this video]
+            </p>
+            <label class="permissons-label">Permissons:</label>
+            <ul class="user-permissons">
+              <li class="permisson">Remove comments</li>
+              <li class="permisson">Report comments</li>
+            </ul>
           </div>
         </main>
 
         <div class="modal-footer">
-          <div class="modal-footer-content">
+          <!--<div class="modal-footer-content">
             <div class="total-count-container">
               <p>
                 Selected: <span class="num-selected-comments">0</span>/<span
@@ -95,10 +112,14 @@
               </select>
               <a class="execute-btn"> Execute </a>
             </div>
+          </div>-->
+          <div class="welcome-buttons-container">
+            <a class="change-account-btn"> Change account </a>
+            <a class="evaluate-comments-btn"> Continue </a>
           </div>
         </div>
       </div>
-    </div>-->
+    </div>
 
     <!-- ADDING ELEMENTS DINAMICALLY -->
     <script src="modal_utils.js"></script>
@@ -106,8 +127,9 @@
     <script src="modal.js"></script>
 
     <script>
-      display_modal_into_body();
+      //display_modal_into_body();
 
+      /*
       display_evaluating_loader_into_modal_body();
 
       const evaluated_comments = [
@@ -136,7 +158,7 @@
         { key: "remove", name: "Action 1" },
         { key: "report", name: "Action 2" },
       ];
-      display_modal_footer_content_into_modal_footer(options);
+      display_modal_footer_content_into_modal_footer(options);*/
     </script>
 
     <script>

@@ -10,7 +10,7 @@ const create_button = () => {
                       <span>Spam comments</span>`;
 
   button.addEventListener("click", () => {
-    buttonHandler();
+    main();
   });
 
   return button;

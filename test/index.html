@@ -2,8 +2,10 @@
   <head></head>
   <body>
     <script>
+      /*var YOUR_CLIENT_ID =
+        "638815897163-tuf2u2l8bq6if08q4jjsod090l32kda4.apps.googleusercontent.com";*/
       var YOUR_CLIENT_ID =
-        "638815897163-tuf2u2l8bq6if08q4jjsod090l32kda4.apps.googleusercontent.com";
+        "125209851600-nvi71ibqif55r4k1lmuuv1473p24jvpm.apps.googleusercontent.com";
       var YOUR_REDIRECT_URI = "http://localhost:5500";
       var fragmentString = location.hash.substring(1);
 
@@ -17,7 +19,8 @@
       if (Object.keys(params).length > 0) {
         localStorage.setItem("oauth2-test-params", JSON.stringify(params));
         if (params["state"] && params["state"] == "try_sample_request") {
-          trySampleRequest();
+          console.log("Existen credenciales en el local STORAGE");
+          //trySampleRequest();
         }
       }
 
@@ -27,50 +30,35 @@
         var params = JSON.parse(localStorage.getItem("oauth2-test-params"));
         if (params && params["access_token"]) {
           console.log(params["access_token"]);
-          var xhr = new XMLHttpRequest();
-
-          /*
-          xhr.open(
-            "GET",
-            "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true&" +
-              "access_token=" +
-              params["access_token"]
-          );
-          xhr.onreadystatechange = function (e) {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-              console.log(xhr.response);
-            } else if (xhr.readyState === 4 && xhr.status === 401) {
-              // Token invalid, so prompt for user permission.
-              oauth2SignIn();
-            }
-          };
-          xhr.send(null);*/
-          /*
-          fetch(
-            `https://www.googleapis.com/youtube/v3/channels?access_token=${params["access_token"]}&part=snippet&mine=true`,
-            {
-              method: "GET",
-            }
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              // Aquí puedes manejar la respuesta del servidor
-              console.log("data1", data);
-            })
-            .catch((error) => {
-              // Aquí puedes manejar errores de la solicitud
-              console.error("Error:", error);
-            });*/
 
           console.log("FETCHING ...");
-          const comment_id = "Ugz7NXdkXoC_u7A08LF4AaABAg";
+          const comment_id = "Ugz7NXdkXoC_u7A08LF4AaABAg"; // my own comment and also in my own video
+          const moderationStatus = "rejected";
+          //const comment_id = "Ugw_LhutyJSnuXt4A8R4AaABAg"; // it is not my comment (also it is not in my videos)
+          const video_id = "H3rNA9H-kB4";
 
-          fetch(
-            `https://youtube.googleapis.com/youtube/v3/comments/setModerationStatus?id=${comment_id}&moderationStatus=rejected&access_token=${params["access_token"]}`,
-            {
-              method: "POST",
-            }
-          )
+          //const url = `https://youtube.googleapis.com/youtube/v3/comments/setModerationStatus?id=${comment_id}&access_token=${params["access_token"]}`; // DELETE A COMMENT
+          //const url = `https://youtube.googleapis.com/youtube/v3/comments/markAsSpam?id=${comment_id}&access_token=${params["access_token"]}`; // DEPORT A COMMENT
+          //const url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&maxResults=100&order=relevance&videoId=${video_id}&access_token=${params["access_token"]}`;
+
+          /* TESTING */
+          const url =
+            "https://youtube.googleapis.com/youtube/v3/comments/setModerationStatus";
+
+          const headers = {
+            Authorization: `Bearer ${params["access_token"]}`,
+            "Content-Type": "application/json",
+          };
+
+          const payload = {
+            id: ["Ugw_LhutyJSnuXt4A8R4AaABAg", comment_id],
+          };
+
+          fetch(url, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(payload),
+          })
             .then((response) => response.json())
             .then((data) => {
               // Aquí puedes manejar la respuesta del servidor
@@ -80,6 +68,22 @@
               // Aquí puedes manejar errores de la solicitud
               console.error("Error:", error);
             });
+          /* END TESTING */
+
+          /*
+          fetch(url, {
+            method: "POST",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Aquí puedes manejar la respuesta del servidor
+              console.log("data2", data);
+            })
+            .catch((error) => {
+              // Aquí puedes manejar errores de la solicitud
+              console.error("Error:", error);
+            });
+            */
         } else {
           oauth2SignIn();
         }

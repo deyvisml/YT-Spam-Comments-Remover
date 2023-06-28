@@ -241,3 +241,84 @@ article.comment input.is-spam-checkbox {
 .custom-content-container img {
   width: 110px;
 }
+
+/* ADDING WELCOME */
+.welcome {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px 0px;
+}
+
+.welcome .channel-photo-container {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.welcome .channel-photo-container img {
+  width: 100%;
+}
+
+.welcome .video-author-info {
+  margin: 10px 0px;
+}
+
+.welcome .is-video-author {
+  color: #a0c49d;
+}
+
+.welcome .is-not-video-author {
+  color: #f2bed1;
+}
+
+.welcome a.channel-url {
+  font-weight: bold;
+  color: white;
+}
+
+.welcome label.permissons-label {
+  font-weight: bold;
+}
+
+/* WELCOME BUTTONS*/
+.welcome-buttons-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0px 5px;
+  width: 100%;
+  height: 100%;
+  border: 1px solid red;
+}
+
+.welcome-buttons-container a {
+  display: block;
+  border-radius: 3px;
+  padding: 5px 23px;
+  font-weight: bold;
+  color: black;
+  border-radius: 18px;
+  cursor: pointer;
+}
+
+.modal-footer a.change-account-btn {
+  background-color: #dde6ed;
+}
+
+.modal-footer a.change-account-btn:hover {
+  background-color: #bdd9e9;
+}
+
+.modal-footer a.evaluate-comments-btn {
+  background-color: #3fa6fe;
+}
+
+.modal-footer a.evaluate-comments-btn:hover {
+  background-color: #2a91eb;
+}
