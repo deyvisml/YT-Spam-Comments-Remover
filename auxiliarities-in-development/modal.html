@@ -71,7 +71,7 @@
               </div>
             </article>
           </div>-->
-          <div class="welcome">
+          <!--<div class="user-profile-container">
             <div class="channel-photo-container">
               <img
                 src="https://www.w3schools.com/howto/img_avatar.png"
@@ -87,7 +87,7 @@
               <li class="permisson">Remove comments</li>
               <li class="permisson">Report comments</li>
             </ul>
-          </div>
+          </div>-->
         </main>
 
         <div class="modal-footer">
@@ -113,10 +113,10 @@
               <a class="execute-btn"> Execute </a>
             </div>
           </div>-->
-          <div class="welcome-buttons-container">
+          <!--<div class="start-buttons-container">
             <a class="change-account-btn"> Change account </a>
-            <a class="evaluate-comments-btn"> Continue </a>
-          </div>
+            <a class="evaluate-comments-btn"> Evaluate Comments </a>
+          </div>-->
         </div>
       </div>
     </div>
@@ -127,6 +127,86 @@
     <script src="modal.js"></script>
 
     <script>
+      const create_user_profile = (user_data, is_video_author, permissons) => {
+        const channel_photo_url =
+          "https://www.w3schools.com/howto/img_avatar.png";
+        const channel_url = "https://www.w3schools.com/howto/img_avatar.png";
+        const channel_name = "Channel name";
+
+        const user_profile = document.createElement("div");
+        user_profile.className = "user-profile-container";
+
+        let user_profile_content = `<div class="channel-photo-container">
+                                    <img
+                                      src="${channel_photo_url}"
+                                      alt=""
+                                    />
+                                  </div>
+                                  <a href="${channel_url}" target="_blank" class="channel-url">${channel_name}</a>
+                                  <p class="video-author-info ${
+                                    is_video_author
+                                      ? "is-video-author"
+                                      : "is-not-video-author"
+                                  }">
+                                    [${
+                                      is_video_author
+                                        ? "You are the author of this video"
+                                        : "You are not the author of this video"
+                                    }]
+                                  </p>
+                                  <label class="permissons-label">Permissons:</label>
+                                  <ul class="user-permissons">`;
+        for (const permisson of permissons) {
+          user_profile_content += `<li class="permisson">${permisson} comments</li>`;
+        }
+        user_profile_content += `</ul>`;
+
+        user_profile.innerHTML = user_profile_content;
+        return user_profile;
+      };
+
+      const display_user_profile_into_modal_body = (
+        user_data,
+        is_video_author,
+        permissons
+      ) => {
+        const user_profile = create_user_profile(
+          user_data,
+          is_video_author,
+          permissons
+        );
+
+        const modal_body = document.querySelector(".modal-body");
+        modal_body.replaceChildren(user_profile);
+      };
+
+      /* =========================*/
+
+      const create_start_buttons = () => {
+        const start_buttons = document.createElement("div");
+        start_buttons.className = "start-buttons-container";
+
+        start_buttons.innerHTML = `<a class="change-account-btn"> Change account </a>
+                                  <a class="evaluate-comments-btn"> Evaluate Comments </a>`;
+
+        return start_buttons;
+      };
+
+      const display_start_buttons_into_modal_footer = () => {
+        const start_buttons = create_start_buttons();
+
+        const modal_footer = document.querySelector(".modal-footer");
+        modal_footer.replaceChildren(start_buttons);
+
+        add_event_to_evaluate_comments_btn();
+        add_event_to_change_account_btn();
+      };
+
+      const permissons = ["remove", "report"];
+      display_user_profile_into_modal_body(null, false, permissons);
+
+      display_start_buttons_into_modal_footer();
+
       //display_modal_into_body();
 
       /*

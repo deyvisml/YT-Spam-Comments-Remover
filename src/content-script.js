@@ -18,52 +18,21 @@ const openOptionsPage = async () => {
   }
 };
 
-const getVideoId = async () => {
-  let video_id;
+const getVideoId = () => {
+  const current_url = window.location.href;
 
-  try {
-    const result = await sendMessage("get-current-url", null);
-
-    if (!result.errorOccurred) {
-      const current_url = result.data;
-      video_id = current_url.substring(32, current_url.length);
-    } else {
-      alert("No se pudo obtener la url del video");
-      throw new Error("No se pudo obtener la url actual");
-    }
-  } catch (error) {
-    throw new Error(error);
-  }
+  const params = new URLSearchParams(current_url.split("?")[1]);
+  const video_id = params.get("v");
 
   return video_id;
-};
-
-const isYoutubeDataAPICredentialsSet = async () => {
-  let is_credentials_set;
-
-  try {
-    const credentials = await getValueFromLocalStorage("credentials");
-
-    // verificar si la variable fue guardada
-    if (credentials != null) {
-      is_credentials_set = true;
-    } else {
-      is_credentials_set = false;
-    }
-  } catch (error) {
-    console.error(error);
-    is_credentials_set = false;
-  }
-
-  return is_credentials_set;
 };
 
 const getComments = async (video_id) => {
   const result = await sendMessage("get-comments", video_id);
 
   if (result.errorOccurred) {
-    alert(result.errorMessage);
-    throw new Error(result.errorMessage);
+    alert("Error, problems getting the comments.");
+    throw new Error(result.data);
   }
 
   return result.data;
@@ -80,7 +49,9 @@ const getUserPreferences = async () => {
 
   evaluate_by_text_comment = {
     isCheck: true,
-    data: { categories: ["spam", "bitcoin"] },
+    data: {
+      categories: [{ name: "Fraude", model_name: "model" }],
+    },
   }; // testing
 
   return {
@@ -90,21 +61,24 @@ const getUserPreferences = async () => {
   };
 };
 
-// TODO: This is an important function
+// TODO: THIS IS AN IMPORTANT FUNCTION
 const evaluateByTextComment = (comment, categories, models_text_comment) => {
   let isSpam = false;
   const spamCategoriesMet = [];
 
-  const tokens = TextPreprocessor.preprocess(comment);
+  const tokens = text_preprocessor.preprocess(comment);
 
   for (const category of categories) {
-    const [prediction] = models_text_comment[category].predict([tokens]); //! clasificando un comentario (prediccón)
+    const [prediction] = models_text_comment[category.model_name].predict([
+      tokens,
+    ]); //! clasificando un comentario (predicción)
 
-    console.log("-> prediction:", tokens, " - ", prediction);
-    if (prediction === "bad") {
-      //! bad only is for testing, it must be "spam" or "true" or 1
+    console.log("-> prediction:", tokens, " ==> ", prediction);
+
+    //! bad only is for testing, it must be "spam" or "true" or 1
+    if (prediction == 1) {
       isSpam = true;
-      spamCategoriesMet.push(category);
+      spamCategoriesMet.push(category.name);
     }
   }
 
@@ -132,8 +106,8 @@ const evaluateComment = async (
 
     // guardando los resultados
     comment_element.isSpam = result.isSpam;
-    result.data.forEach((category) => {
-      comment_element["spamCategoriesMet"].push(category);
+    result.data.forEach((category_name) => {
+      comment_element["spamCategoriesMet"].push(category_name);
     });
   }
 };
@@ -144,19 +118,21 @@ const loadModels = async (evaluation_types) => {
 
   const models = {};
 
-  // se cargan todos los modelos que sean requerdios para los distintos tipos de evaluación
+  // se cargan todos los modelos que sean requeridos para los distintos tipos de evaluación
   //! por ahora solo se cargaran los modelos que se utlizen para el tipo de evaluación del texto de los comentarios (evaluate_by_text_comment)
 
   // este sera verdadero, siempre y cuando almenos una category haya sido seleccionada
   if (evaluate_by_text_comment?.isCheck) {
     // para cargar los distintos modelos para las distintas categories de evaluación de comentario de texto (self promo, bitcoin, etc)
     for (const category of evaluate_by_text_comment.data.categories) {
-      const result = await sendMessage("get-model", category);
+      const result = await sendMessage("get-model", category.model_name);
       if (result.errorOccurred)
-        throw new Error(`Error uploading the model: ${category}`);
-      // genearintg the model with json data
+        throw new Error(`Error loading the model: ${category.model_name}`);
+      // genearting the model with json data
       models["text_comment"] = models["text_comment"] ?? {}; // en ese parte solo se almacenaran los modelos relacionadados al texto del comentario
-      models["text_comment"][category] = MultinomialNB.load(result.data);
+      models["text_comment"][category.model_name] = MultinomialNB.load(
+        result.data
+      );
     }
   }
 
@@ -212,7 +188,7 @@ const filterSpamComments = (evaluated_comments) => {
   return spam_comments;
 };
 
-const is_client_id_set = async () => {
+const isClientIDSet = async () => {
   const client_id_input_datas = await getValueFromLocalStorage(
     "client_id_input_datas"
   );
@@ -220,22 +196,20 @@ const is_client_id_set = async () => {
   return !!client_id_input_datas; // casting to a boolean result
 };
 
-const is_there_access_token = async () => {
+const isThereAccessToken = async () => {
   const access_token = await getValueFromLocalStorage("access_token");
 
   return !!access_token;
 };
 
-const is_access_token_alive = async () => {
-  const result = await sendMessage("verify-is-access-token-alive", null);
+const isAccessTokenAlive = async () => {
+  // to verify if the access token is still alive, we call a random endpoint (in this case to get the channel data)
+  const result = await sendMessage("get-channel-data-logged-user", null);
 
-  if (result.errorOccurred)
-    throw new Error("Error verifying if the access token is alive");
-
-  return result.data;
+  return !result.errorOccurred;
 };
 
-const get_client_id = async () => {
+const getClientID = async () => {
   const client_id_input_datas = await getValueFromLocalStorage(
     "client_id_input_datas"
   );
@@ -283,87 +257,163 @@ const isVideoAuthor = async (video_id) => {
   return false;
 };
 
-// TODO: WORKING IN THIS METHOD
-const main = async () => {
-  // START verificating proccess
+const getUserData = async () => {
+  const result = await sendMessage("get-channel-data-logged-user", null);
 
-  if (!(await is_client_id_set())) {
+  if (result.errorOccurred) throw new Error(result.data);
+
+  return result.data;
+};
+
+const getPermissons = (is_video_author) => {
+  let permissons = null;
+
+  if (is_video_author)
+    permissons = [
+      { key: "remove", name: "Remove comments" },
+      { key: "report", name: "Report comments" },
+    ];
+  else permissons = [{ key: "report", name: "Report comments" }];
+
+  return permissons;
+};
+
+const signIn = async () => {
+  const client_id = await getClientID();
+  oauth2SignIn(client_id);
+};
+
+const main = async () => {
+  // START verifying proccess
+
+  if (!(await isClientIDSet())) {
     alert("There is not a Client ID set, please first do it.");
     await openOptionsPage();
     return;
   }
 
-  if (!(await is_there_access_token()) || !(await is_access_token_alive())) {
+  if (!(await isThereAccessToken()) || !(await isAccessTokenAlive())) {
     alert("You need to sign-in first.");
-    const client_id = await get_client_id();
-    oauth2SignIn(client_id);
+    await signIn();
     return;
   }
 
-  // END verificating proccess
+  // END verifying proccess
 
-  //const access_token = await getValueFromLocalStorage("access_token");
-  const video_id = await getVideoId(); // TODO: This method would be improve (without interacting with sw)
+  const video_id = getVideoId();
 
+  const user_data = await getUserData();
   const is_video_author = await isVideoAuthor(video_id);
+  const permissons = getPermissons(is_video_author);
 
-  return true;
-
-  // TODO: Display a modal and then a loader
   display_modal_into_body();
-  display_evaluating_loader_into_modal_body();
-
-  // comentado para no gastar tokens de yt en el desarrollo
-  //const comments = await getComments(video_id);
-  //console.log(comments);
-  //await setValueToLocalStorage("comments", comments);
-
-  const comments = await getValueFromLocalStorage("comments");
-
-  const evaluated_comments = await evaluateComments(comments);
-  console.log("-> Evaluted comments");
-  console.log(evaluated_comments);
-
-  const spam_comments = filterSpamComments(evaluated_comments);
-  console.log("-> Filtered comments");
-  console.log(spam_comments);
-
-  return true;
-  // Add spam comments to modal
-  display_comments_into_modal_body(spam_comments);
-
-  // TODO: Verify if the set token belongs to channel that created this video (video_id)
-  //const is_video_author = isVideoAuthor(video_id);
-  // hasSetTokenDeleteCommentsPermisson(video_id)
-
-  // TODO: Get user options
-  const options = [
-    { key: "remove", name: "Action 1" },
-    { key: "report", name: "Action 2" },
-  ];
-
-  // TODO: Add user options to modal
-  display_modal_footer_content_into_modal_footer(options);
+  display_user_profile_into_modal_body(user_data, is_video_author, permissons);
+  display_start_buttons_into_modal_footer(permissons);
 };
 
-const execute = () => {
-  console.log("OAUTH RUNNING");
-  oauth2SignIn();
-  // get id from checked spam comments
+const changeAccountHandler = async () => {
+  await removeValueFromLocalStorage("access_token");
+  close_modal();
+
+  signIn();
+};
+
+const evaluateCommentsHandler = async () => {
+  clear_modal();
+  display_evaluating_loader_into_modal_body();
+
+  const video_id = getVideoId();
+
+  let comments = null;
+  if (MODE == "dev") {
+    comments = await getValueFromLocalStorage("comments");
+  } else {
+    //comentado para no gastar tokens de yt en el desarrollo
+    comments = await getComments(video_id);
+    await setValueToLocalStorage("comments", comments);
+    console.log(comments);
+  }
+
+  const evaluated_comments = await evaluateComments(comments);
+  console.log("-> Evaluted comments: ", evaluated_comments);
+
+  const spam_comments = filterSpamComments(evaluated_comments);
+  console.log("-> Filtered comments: ", spam_comments);
+
+  if (spam_comments.length == 0) {
+    alert("There are not spam comments identified.");
+    close_modal();
+    return;
+  }
+
+  // Add spam comments into modal
+  display_comments_into_modal_body(spam_comments);
+
+  const is_video_author = await isVideoAuthor(video_id);
+  const permissons = getPermissons(is_video_author);
+
+  display_execute_options_into_modal_footer(permissons);
+};
+
+/**
+ * Prepare comment ids in two ways, first replace "POINT" by . and the second, remove comment replies id if its parent will be delete (to avoid problems)
+ * @param {Array} comment_ids Comment id's to prepare so they can be deleted successfully
+ * @returns comments prepare
+ */
+const prepareCommentIDs = (comment_ids) => {
+  const result = [];
+
+  for (let comment_id of comment_ids) {
+    if (comment_id.includes("POINT")) {
+      comment_id = comment_id.replace("POINT", ".");
+      const parent_comment_id = comment_id.split(".")[0];
+
+      if (comment_ids.includes(parent_comment_id)) continue; // the actual comment is not included because its parent comment will be deleted
+    }
+
+    result.push(comment_id);
+  }
+
+  return result;
+};
+
+const execute = async (option, comment_ids) => {
+  comment_ids = prepareCommentIDs(comment_ids);
+
+  let result = null;
+
+  switch (option) {
+    case "remove":
+      result = await sendMessage("remove-comments", comment_ids);
+      break;
+
+    case "report":
+      result = await sendMessage("report-comments", comment_ids);
+      break;
+
+    default:
+      alert("Unkown selected option.");
+      throw new Error("Unkown selected option.");
+      break;
+  }
+
+  return result;
+};
+
+// TODO: WORKING IN THIS METHOD
+const executeHandler = async () => {
+  // get ids from checked spam comments
   const spam_comments_id_checked = get_spam_comments_id_checked();
 
   // get selected option
   const selected_option = get_selected_option();
-  console.log(selected_option);
 
-  // display executing loader (it also hide the modal footer)
+  clear_modal();
   display_executing_loader(selected_option, spam_comments_id_checked.length);
 
-  // execute_option(selected_option) this method belongs to the content script
-  const result = { errorOcurred: false, data: "Mensaje succed xd" };
+  const result = await execute(selected_option, spam_comments_id_checked);
 
-  // displaying the final result
-  //display_result(result);
+  display_result(result);
 };
 
 display_button();

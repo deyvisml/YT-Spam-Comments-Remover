@@ -1,4 +1,9 @@
 /* ========= EVENTS =========*/
+const close_modal = () => {
+  document.querySelector(".comments-modal-container").remove();
+  // enable website scroll
+  document.body.style.overflow = "auto";
+};
 
 const add_events_to_close_modal = () => {
   /*const background_comments_modal = document.querySelector(
@@ -10,10 +15,7 @@ const add_events_to_close_modal = () => {
 
   const close_modal_btn = document.querySelector(".close-modal-btn");
   close_modal_btn.addEventListener("click", () => {
-    document.querySelector(".comments-modal-container").remove();
-
-    // enable website scroll
-    document.body.style.overflow = "auto";
+    close_modal();
   });
 };
 
@@ -78,10 +80,35 @@ const add_event_to_refresh_num_spam_comments_checked = () => {
   });
 };
 
+const add_event_to_evaluate_comments_btn = () => {
+  const evaluate_comments_btn = document.querySelector(
+    ".evaluate-comments-btn"
+  );
+
+  evaluate_comments_btn.addEventListener("click", () => {
+    evaluateCommentsHandler();
+  });
+};
+
+const add_event_to_change_account_btn = () => {
+  const change_account_btn = document.querySelector(".change-account-btn");
+
+  change_account_btn.addEventListener("click", () => {
+    changeAccountHandler();
+  });
+};
+
 const add_event_to_execute = () => {
   const execute_btn = document.querySelector(".execute-btn");
 
   execute_btn.addEventListener("click", () => {
-    execute();
+    // get ids from checked spam comments
+    const spam_comments_id_checked = get_spam_comments_id_checked();
+
+    if (spam_comments_id_checked.length > 0) {
+      executeHandler();
+    } else {
+      alert("Error, there are not selected comments.");
+    }
   });
 };

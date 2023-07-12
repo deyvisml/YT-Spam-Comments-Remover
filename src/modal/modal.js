@@ -83,7 +83,7 @@ const display_evaluating_loader_into_modal_body = () => {
     text_header: "Evaluando todos los comentarios...",
     url_imge:
       "http://cdn.lowgif.com/small/dad993fb030414a7-running-pikachu-animation-pkmn-awesome-arts.gif",
-    text_footer: "(Por favor espere)",
+    text_footer: "(Please wait...)",
   };
 
   display_custom_content_into_modal_body(params);
@@ -99,10 +99,10 @@ const display_executing_loader = (selected_option, num_selected_comments) => {
 
   switch (selected_option) {
     case "remove":
-      text_header = `Eliminando los ${num_selected_comments} comentarios seleccionados.`;
+      text_header = `Removing the ${num_selected_comments} selected comments.`;
       break;
     case "report":
-      text_header = `Reportando los ${num_selected_comments} comentarios seleccionados.`;
+      text_header = `Reporting the ${num_selected_comments} selected comments.`;
       break;
     default:
       break;
@@ -112,14 +112,11 @@ const display_executing_loader = (selected_option, num_selected_comments) => {
     text_header: text_header,
     url_imge:
       "http://cdn.lowgif.com/small/dad993fb030414a7-running-pikachu-animation-pkmn-awesome-arts.gif",
-    text_footer: "(Por favor espere)",
+    text_footer: "(Please wait...)",
   };
 
   // in this case, displaying another loader into modal body
   display_custom_content_into_modal_body(params);
-
-  // axuiliary remove modal footer
-  clear_modal_footer();
 };
 
 /**
@@ -128,9 +125,9 @@ const display_executing_loader = (selected_option, num_selected_comments) => {
  */
 const display_result = (result) => {
   // response fail: show into modal body the error
-  if (result.errorOcurred) {
+  if (result.errorOccurred) {
     const params = {
-      text_header: "Ocurrio un error :(",
+      text_header: "An error occurred :(",
       url_imge:
         "http://icons.iconarchive.com/icons/papirus-team/papirus-status/512/dialog-error-icon.png",
       text_footer: result.data,
@@ -143,7 +140,7 @@ const display_result = (result) => {
 
   // response ok: show into modal body the results
   const params = {
-    text_header: "Proceso finalizado exitosamente!",
+    text_header: "Process completed successfully!",
     url_imge:
       "https://www.shareicon.net/data/512x512/2017/02/24/879486_green_512x512.png",
     text_footer: result.data,
@@ -167,17 +164,6 @@ const create_comment = (comment_data) => {
   const date_commented = comment_data.snippet.publishedAt ?? null;
   const text_comment = comment_data.snippet.textOriginal ?? null; // it also could be textDisplay
   const spam_categories_matched = comment_data.spamCategoriesMet;
-
-  /*
-  console.log("***********");
-  console.log(spam_comment_id);
-  console.log(photo_url);
-  console.log(username);
-  console.log(date_commented);
-  console.log(text_comment);
-  console.log(spam_categories_matched);
-  console.log("***********");
-  throw new Error("xdxd");*/
 
   // fixing error about the id (because an id must not include points (.)
   if (spam_comment_id.includes("."))
@@ -301,7 +287,7 @@ const display_comments_into_modal_body = (comments) => {
  * @param {Array} options Array of options (remove, report, etc) that the user can select
  * @returns modal footer content element
  */
-const create_modal_footer_content = (options) => {
+const create_modal_footer_content = (permissons) => {
   const modal_footer_content = document.createElement("div");
   modal_footer_content.classList.add("modal-footer-content");
 
@@ -324,8 +310,7 @@ const create_modal_footer_content = (options) => {
             id="select-spam-comments-options"
           >`;
 
-  for (const { key, name } of options) {
-    console.log(key, name);
+  for (const { key, name } of permissons) {
     modal_footer_content_element_structure += `
             <option value="${key}">${name}</option>`;
   }
@@ -342,16 +327,116 @@ const create_modal_footer_content = (options) => {
 
 /**
  * Display the modal footer content into the modal footer
- * @param {options} options Array of options like remove, report, which are the user can select to execute a proccess related to the comments
+ * @param {Array} permissons Array of options like remove, report, which are the user can select to execute a proccess related to the comments
  */
-const display_modal_footer_content_into_modal_footer = (options) => {
-  const modal_footer_content = create_modal_footer_content(options);
+const display_execute_options_into_modal_footer = (permissons) => {
+  const modal_footer_content = create_modal_footer_content(permissons);
 
   const modal_footer = document.querySelector(".modal-footer");
   modal_footer.replaceChildren(modal_footer_content);
 
   add_event_to_refresh_num_spam_comments_checked();
   add_event_to_execute();
+};
+
+/* ============================================================ */
+/* ============================================================ */
+
+/**
+ * Create the user profile container considering its parameters
+ * @param {Object} user_data User information obtained from the API
+ * @param {Bool} is_video_author If it's the video author or not
+ * @param {Array} permissons Array of permissons
+ * @returns user_profile element
+ */
+const create_user_profile = (userdata, is_video_author, permissons) => {
+  const user_data = userdata.items[0].snippet;
+  const channel_photo_url = user_data.thumbnails.default.url;
+  const channel_url = `https://www.youtube.com/${user_data.customUrl}`;
+  const channel_name = user_data.title;
+
+  const user_profile = document.createElement("div");
+  user_profile.className = "user-profile-container";
+
+  let user_profile_content = `<div class="channel-photo-container">
+                              <img
+                                src="${channel_photo_url}"
+                                alt=""
+                              />
+                            </div>
+                            <a href="${channel_url}" target="_blank" class="channel-url">${channel_name}</a>
+                            <p class="video-author-info ${
+                              is_video_author
+                                ? "is-video-author"
+                                : "is-not-video-author"
+                            }">
+                              [${
+                                is_video_author
+                                  ? "You are the author of this video"
+                                  : "You are not the author of this video"
+                              }]
+                            </p>
+                            <label class="permissons-label">Permissons:</label>
+                            <ul class="user-permissons">`;
+  for (const permisson of permissons) {
+    user_profile_content += `<li class="permisson">${permisson.name}</li>`;
+  }
+
+  user_profile_content += `</ul>`;
+
+  user_profile.innerHTML = user_profile_content;
+  return user_profile;
+};
+
+/**
+ * Dispay the user profile into modal body (so first is create a user_profile element)
+ * @param {Object} user_data User information obtained from the API
+ * @param {Bool} is_video_author If it's the video author or not
+ * @param {Array} permissons Array of permissons
+ */
+const display_user_profile_into_modal_body = (
+  user_data,
+  is_video_author,
+  permissons
+) => {
+  const user_profile = create_user_profile(
+    user_data,
+    is_video_author,
+    permissons
+  );
+
+  const modal_body = document.querySelector(".modal-body");
+  modal_body.replaceChildren(user_profile);
+};
+
+/* ============================================================ */
+/* ============================================================ */
+
+/**
+ * Create the start buttons (change account and evalute comments)
+ * @returns start buttons elements
+ */
+const create_start_buttons = () => {
+  const start_buttons = document.createElement("div");
+  start_buttons.className = "start-buttons-container";
+
+  start_buttons.innerHTML = `<a class="change-account-btn"> Change account </a>
+                            <a class="evaluate-comments-btn"> Evaluate Comments </a>`;
+
+  return start_buttons;
+};
+
+/**
+ * Display the start buttons into modal footer, so firstlly the buttons are created
+ */
+const display_start_buttons_into_modal_footer = () => {
+  const start_buttons = create_start_buttons();
+
+  const modal_footer = document.querySelector(".modal-footer");
+  modal_footer.replaceChildren(start_buttons);
+
+  add_event_to_evaluate_comments_btn();
+  add_event_to_change_account_btn();
 };
 
 /* ============================================================ */

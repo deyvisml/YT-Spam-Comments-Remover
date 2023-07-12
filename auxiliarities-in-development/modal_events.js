@@ -65,7 +65,6 @@ const add_event_to_refresh_num_spam_comments_checked = () => {
   const comments_container = document.querySelector(".comments-container");
 
   comments_container.addEventListener("click", () => {
-    console.log("change");
     const num_is_spam_checkboxes_checked = get_num_is_spam_checkboxes_checked();
 
     const num_selected_comments_element = document.querySelector(

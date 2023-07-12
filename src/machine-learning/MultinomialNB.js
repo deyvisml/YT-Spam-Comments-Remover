@@ -19,10 +19,18 @@ class MultinomialNB {
 
   /* X sera un arrays de arrays, e y solo sera un array, ambos ya deben haber sido preprocesados */
   fit(X, y) {
+    if (X.length != y.length)
+      console.log("Error, the length of X and y are diferent.");
+
+    // convert all the classes to string values (even if there are already strings)
+    y = y.map(function (numero) {
+      return numero.toString();
+    });
+
     this.class_names = [...new Set(y)];
     const num_documents = X.length;
 
-    // calculating count and V
+    // calculating frequency and vocabulary
     for (const [index, y_i] of y.entries()) {
       for (const word of X[index]) {
         if (!this.vocabulary.includes(word)) {
@@ -63,20 +71,28 @@ class MultinomialNB {
 
     for (const x of X) {
       let pred = null;
-      const score = {};
+      const scores = {};
 
       for (const class_name of this.class_names) {
-        score[class_name] = this.log_prior[class_name]; // log prior is generating incorrect clasification, so it appear that i need a a uniform distribution of data 50%, 50%
+        scores[class_name] = this.log_prior[class_name]; // log prior is generating incorrect clasification, so it appear that i need a a uniform distribution of data 50%, 50%
 
         for (const word of x) {
           if (this.vocabulary.includes(word)) {
-            score[class_name] += this.log_likelihood[word]?.[class_name] ?? 0;
+            scores[class_name] += this.log_likelihood[word][class_name];
           }
         }
       }
+      // console.log("scores -> ", scores);
 
-      const max_probability = Math.max(...Object.values(score));
-      pred = Object.keys(score).find((key) => score[key] === max_probability);
+      const max_probability = Math.max(...Object.values(scores));
+      pred = Object.keys(scores).find((key) => scores[key] === max_probability);
+
+      // modifying: reduce false positive rate
+      let olgura = 1.0; // 1 is default, but a good value is around 1.03
+      pred = "0";
+      if (scores["0"] / scores["1"] > olgura) {
+        pred = "1";
+      }
 
       preds.push(pred);
     }
@@ -94,48 +110,3 @@ class MultinomialNB {
     return new MultinomialNB(model);
   }
 }
-/*
-const X = [
-  ["I", "love", "you", "my", "friend"],
-  ["I", "hate", "you", "you", "are", "not", "friend"],
-];
-
-const y = ["good", "bad"];
-
-const classifier = new MultinomialNB();
-
-classifier.fit(X, y);
-
-console.log(
-  "predicttion with classifier:",
-  classifier.predict([["It", "hate", "day"]])
-);
-
-console.log("model:", classifier);*7
-
-/*
-classifier.save("model.json");
-
-const other_classifier = MultinomialNB.load("model.json");
-
-console.log(
-  "predicttion with classifier 2:",
-  other_classifier.predict([["It", "love", "day"]])
-);*/
-
-/* ============= */
-/*
-  const fs = require("fs");
-  let y_train = fs.readFileSync("y.txt", "utf-8").split("\r");
-  y_train = y_train.map((str) => str.trim());
-  console.log(y_train);
-  
-  const data = fs.readFileSync("X.txt", "utf-8").split("\n");
-  const X_train = data.map((item) => item.slice(1, -2).split("', '"));
-  
-  console.log(y_train[0]);
-  console.log(X_train[0]);
-  
-  classifier.fit(X_train, y_train);
-  
-  console.log("predicttion:", classifier.predict([["love", "thank", "happy"]]));*/

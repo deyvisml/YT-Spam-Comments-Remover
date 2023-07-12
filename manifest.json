@@ -13,9 +13,15 @@
       "matches": ["https://www.youtube.com/watch?v=*"],
       "css": ["src/button/button.css", "src/modal/modal.css"],
       "js": [
+        "src/config.js",
+        "src/machine-learning/util/porter_stemmer_en.js",
+        "src/machine-learning/util/porter_stemmer_es.js",
+        "src/machine-learning/util/stopwords_en.js",
+        "src/machine-learning/util/stopwords_es.js",
         "src/machine-learning/TextPreprocessor.js",
         "src/machine-learning/MultinomialNB.js",
         "src/libs/fontawesome.js",
+        "src/libs/oauth2SignIn.js",
         "src/button/button.js",
         "src/modal/modal-utils.js",
         "src/modal/modal-events.js",
@@ -25,10 +31,11 @@
       ]
     },
     {
-      "matches": ["https://www.google.com/*", "https://duckduckgo.com/*"],
-      "js": ["src/utils.js", "src/google-script.js"]
+      "matches": ["https://duckduckgo.com/*"],
+      "js": ["src/utils.js", "src/browser-script.js"]
     }
   ],
+  "host_permissions": ["https://youtube.googleapis.com/youtube/v3/*"],
   "options_page": "options/options.html",
-  "permissions": ["storage", "tabs"]
+  "permissions": ["storage"]
 }

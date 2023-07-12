@@ -53,7 +53,7 @@ const clear_modal_footer = () => {
   modal_footer.innerHTML = "";
 };
 
-const clean_modal = () => {
+const clear_modal = () => {
   const modal_body = document.querySelector(".modal-body");
   modal_body.innerHTML = "";
 
