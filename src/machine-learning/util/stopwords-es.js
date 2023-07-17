@@ -104,4 +104,8 @@ const stopwords_es = [
   "son",
   "si",
   "esta",
+  "fue",
+  "estuvo",
+  "haber",
+  "hola",
 ];

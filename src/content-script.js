@@ -50,7 +50,7 @@ const getUserPreferences = async () => {
   evaluate_by_text_comment = {
     isCheck: true,
     data: {
-      categories: [{ name: "Fraude", model_name: "model" }],
+      categories: [{ name: "Estafa", model_name: "model" }],
     },
   }; // testing
 

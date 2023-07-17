@@ -6,26 +6,29 @@ class TextPreprocessor {
   // cleaner
   cleaner = (text) => {
     // text to lower case
-    let lowercase_text = text.toLowerCase();
-
-    // (only for tweater dataset) remove old style retweet text "RT"
-    lowercase_text = lowercase_text.replace(/^rt\s+/, "");
+    let cleaned_text = text.toLowerCase();
 
     // remove @ mentions
-    lowercase_text = lowercase_text.replace(/@\w+/g, "");
+    cleaned_text = cleaned_text.replace(/@\w+/g, "");
 
     // remove <br> strings
-    lowercase_text = lowercase_text.replace(/<br>/g, "");
+    cleaned_text = cleaned_text.replace(/<br>/g, "");
+
+    // remove </b> strings
+    cleaned_text = cleaned_text.replace(/<b>/g, "");
+    cleaned_text = cleaned_text.replace(/<\/b>/g, "");
 
     // remove &quot;
-    lowercase_text = lowercase_text.replace(/&quot;/g, "");
+    cleaned_text = cleaned_text.replace(/&quot;/g, "");
+
+    // remove &lt;^
+    cleaned_text = cleaned_text.replace(/&lt;\^/g, "");
 
     // remove URLs
-    lowercase_text = lowercase_text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "");
+    cleaned_text = cleaned_text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "");
 
     // remove punctuations signs
-    let cleaned_text = lowercase_text.replace(/[,.'¡!¿?#’]/g, "");
-    //let cleaned_text = lowercase_text.replace(/[^\w\s]|_/g, ""); // wrong !!
+    cleaned_text = cleaned_text.replace(/[/*&;^,.'\-¡!¿?#’]/g, "");
 
     // remove numbers
     cleaned_text = cleaned_text.replace(/[0-9]/g, "");
@@ -48,7 +51,8 @@ class TextPreprocessor {
   stopWordsRemover = (tokens) => {
     const cleaned_tokens = [];
     for (const token of tokens) {
-      if (stopwords.indexOf(token) === -1) {
+      // aqui sucede algo extraño, como tal hay un simbolo dentro de de las comillas pero no se cual es, esto permite no inclurir tokens vacios
+      if (stopwords.indexOf(token) === -1 && token != "​") {
         cleaned_tokens.push(token);
       }
     }
