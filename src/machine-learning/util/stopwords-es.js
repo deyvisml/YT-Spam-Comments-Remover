@@ -100,4 +100,8 @@ const stopwords_es = [
   "perfecto",
   "ellos",
   "encontrar",
+  "duda",
+  "son",
+  "si",
+  "esta",
 ];

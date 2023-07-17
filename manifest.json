@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "DEV - Spam remover",
+  "name": "DEV - YT Spam Comments Remover",
   "version": "1.0.1",
 
-  "description": "Remove spam comments",
+  "description": "Remove spam comments from your YouTubevideos.",
   "background": {
     "service_worker": "src/service-worker.js",
     "type": "module"
@@ -14,10 +14,10 @@
       "css": ["src/button/button.css", "src/modal/modal.css"],
       "js": [
         "src/config.js",
-        "src/machine-learning/util/porter_stemmer_en.js",
-        "src/machine-learning/util/porter_stemmer_es.js",
-        "src/machine-learning/util/stopwords_en.js",
-        "src/machine-learning/util/stopwords_es.js",
+        "src/machine-learning/util/stopwords-es.js",
+        "src/machine-learning/util/stopwords-en.js",
+        "src/machine-learning/util/PorterStemmerES.js",
+        "src/machine-learning/util/PorterStemmerEN.js",
         "src/machine-learning/TextPreprocessor.js",
         "src/machine-learning/MultinomialNB.js",
         "src/libs/fontawesome.js",

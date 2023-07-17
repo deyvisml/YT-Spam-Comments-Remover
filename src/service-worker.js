@@ -193,10 +193,35 @@ const getModel = async (model_name) => {
   }
 };
 
-const getCommentsYoutubeDataAPI = async (video_id, access_token) => {
-  //video_id = "sH7DNJj4vus"; // < 100 comments
-  //video_id = "i4ompLBhUg4"; // > 100 comments
+const getRepliesComments = async (parent_id, access_token) => {
+  let replies_comments = [];
 
+  try {
+    const headers = {
+      Authorization: `Bearer ${access_token}`,
+      "Content-Type": "application/json",
+    };
+
+    const response = await fetch(
+      YOUTUBE_URI +
+        `comments?part=snippet&parentId=${parent_id}&maxResults=100&pageToken=""`,
+      {
+        method: "GET",
+        headers: headers,
+      }
+    );
+
+    const result = await response.json();
+
+    replies_comments = result.items;
+  } catch (error) {
+    return { errorOccurred: true, data: error };
+  }
+
+  return { errorOccurred: false, data: replies_comments };
+};
+
+const getCommentsYoutubeDataAPI = async (video_id, access_token) => {
   const comments = [];
   let nextPageToken = "";
 
@@ -210,7 +235,7 @@ const getCommentsYoutubeDataAPI = async (video_id, access_token) => {
 
       const response = await fetch(
         YOUTUBE_URI +
-          `commentThreads?part=snippet%2Creplies&maxResults=100&order=relevance&pageToken=${nextPageToken}&videoId=${video_id}`,
+          `commentThreads?part=snippet,replies&maxResults=100&order=relevance&pageToken=${nextPageToken}&videoId=${video_id}`,
         {
           method: "GET",
           headers: headers,
@@ -219,12 +244,26 @@ const getCommentsYoutubeDataAPI = async (video_id, access_token) => {
 
       const result = await response.json();
 
-      result.items.forEach((item) => {
+      for (const item of result.items) {
+        const total_reply_count = item.snippet.totalReplyCount;
+        let replies_comments = item.replies?.comments ?? []; // in this part we get some replies comments, but they are not all the replies comments, for that reason we are calling to a method in the lines de abajo
+
+        let DEEP_EVALUATION = true;
+        if (total_reply_count > 0 && DEEP_EVALUATION) {
+          const parent_id = item.snippet.topLevelComment.id;
+          const result = await getRepliesComments(parent_id, access_token);
+
+          if (result.errorOccurred) {
+            throw new Error(result.data);
+          }
+          replies_comments = result.data;
+        }
+
         comments.push({
           topLevelComment: item.snippet.topLevelComment, // comentario
-          repliesComments: item.replies?.comments ?? [], // respuestas a ese comentario
+          repliesComments: replies_comments, // respuestas a ese comentario
         });
-      });
+      }
 
       nextPageToken = result.nextPageToken ?? "";
     } catch (error) {

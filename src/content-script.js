@@ -73,8 +73,6 @@ const evaluateByTextComment = (comment, categories, models_text_comment) => {
       tokens,
     ]); //! clasificando un comentario (predicción)
 
-    console.log("-> prediction:", tokens, " ==> ", prediction);
-
     //! bad only is for testing, it must be "spam" or "true" or 1
     if (prediction == 1) {
       isSpam = true;
@@ -176,11 +174,9 @@ const filterSpamComments = (evaluated_comments) => {
       spam_comments.push(evaluated_comment.topLevelComment);
     }
 
-    if ("repliesComments" in evaluated_comment) {
-      for (const reply_comment of evaluated_comment.repliesComments) {
-        if (reply_comment.isSpam) {
-          spam_comments.push(reply_comment);
-        }
+    for (const reply_comment of evaluated_comment.repliesComments) {
+      if (reply_comment.isSpam) {
+        spam_comments.push(reply_comment);
       }
     }
   }
@@ -318,6 +314,10 @@ const changeAccountHandler = async () => {
   signIn();
 };
 
+const getIDsComments = (comments) => {
+  return comments.map((comment) => comment.id);
+};
+
 const evaluateCommentsHandler = async () => {
   clear_modal();
   display_evaluating_loader_into_modal_body();
@@ -338,7 +338,9 @@ const evaluateCommentsHandler = async () => {
   console.log("-> Evaluted comments: ", evaluated_comments);
 
   const spam_comments = filterSpamComments(evaluated_comments);
-  console.log("-> Filtered comments: ", spam_comments);
+  console.log("-> Filtered comments (spam): ", spam_comments);
+  const ids_spam_comments = getIDsComments(spam_comments);
+  console.log("-> IDs_spam_comments", ids_spam_comments);
 
   if (spam_comments.length == 0) {
     alert("There are not spam comments identified.");

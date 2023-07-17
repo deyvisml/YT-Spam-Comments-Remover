@@ -74,7 +74,7 @@ class MultinomialNB {
       const scores = {};
 
       for (const class_name of this.class_names) {
-        scores[class_name] = this.log_prior[class_name]; // log prior is generating incorrect clasification, so it appear that i need a a uniform distribution of data 50%, 50%
+        scores[class_name] = 0; // this.log_prior[class_name]; // log prior is generating incorrect clasification, so it appear that i need a a uniform distribution of data 50%, 50%
 
         for (const word of x) {
           if (this.vocabulary.includes(word)) {
@@ -82,15 +82,17 @@ class MultinomialNB {
           }
         }
       }
-      // console.log("scores -> ", scores);
+      //console.log("scores -> ", scores);
 
+      /*
       const max_probability = Math.max(...Object.values(scores));
       pred = Object.keys(scores).find((key) => scores[key] === max_probability);
+      */
 
       // modifying: reduce false positive rate
-      let olgura = 1.0; // 1 is default, but a good value is around 1.03
+      let threshold = 3; // (umbral) 1 is default, but a good value is around 1.7
       pred = "0";
-      if (scores["0"] / scores["1"] > olgura) {
+      if (scores["1"] / scores["0"] > threshold) {
         pred = "1";
       }
 
