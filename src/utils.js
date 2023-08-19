@@ -1,3 +1,15 @@
+const sendMessage = async (action, data) => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({ action, data }, (response) => {
+      if (!chrome.runtime.lastError) {
+        resolve(response);
+      } else {
+        reject(chrome.runtime.lastError);
+      }
+    });
+  });
+};
+
 const waitForElement = (selector, time) => {
   return new Promise((resolve, reject) => {
     const intervalId = setInterval(() => {
