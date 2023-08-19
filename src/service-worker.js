@@ -14,7 +14,7 @@ const clearStorage = () => {
 };
 
 chrome.runtime.onInstalled.addListener((details) => {
-  //clearStorage();
+  clearStorage();
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
