@@ -115,8 +115,8 @@ const add_event_to_show_comments_by_rigusority = () => {
 
   console.log("**SPAM_COMMENTS: ", SPAM_COMMENTS);
   rigurosity_slider.addEventListener("input", () => {
-    const rigurosity_value = rigurosity_slider.value;
-    const threshold = 1 + rigurosity_value / 10;
+    const threshold = rigurosity_slider.value;
+    console.log("threshold:", threshold);
 
     const spam_comments_through_threshold = getSpamCommentsThroughThreshold(
       SPAM_COMMENTS,

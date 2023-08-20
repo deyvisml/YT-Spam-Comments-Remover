@@ -25,8 +25,8 @@
 
 .comments-modal {
   z-index: 2;
-  width: 600px;
-  height: 500px;
+  width: 700px;
+  height: 600px;
   display: flex;
   gap: 10px 0px;
   flex-direction: column;
@@ -68,7 +68,8 @@
 
 /* ==== MAIN CONTENT ==== */
 .modal-body {
-  height: 83%; /* determina el alto de la sección en donde se mostraran los comentarios */
+  min-height: 525px; /* determina el alto de la sección en donde se mostraran los comentarios */
+  max-height: 525px;
 
   /*border: 1px solid yellow;*/
   border-top: 0.5px solid gray;
@@ -183,9 +184,10 @@ article.comment .is-spam-checkbox-container {
   justify-content: flex-start;
 }
 
+/*
 article.comment input.is-spam-checkbox {
-  /*transform: scale(1.4); /* aumentar el tamaño */
-}
+  transform: scale(1.4); // aumentar el tamaño
+}*/
 
 /* ==== MODAL FOOTER ==== */
 .modal-footer {
@@ -214,6 +216,15 @@ article.comment input.is-spam-checkbox {
   font-weight: normal;
 }
 
+.modal-footer .rigurosity-slider-container {
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  gap: 10px;
+}
+
 .modal-footer select.select-spam-comments-options {
   padding: 5px 10px;
   border-radius: 3px;
@@ -224,7 +235,7 @@ article.comment input.is-spam-checkbox {
 .modal-footer a.execute-btn {
   border-radius: 3px;
   padding: 8px 23px;
-  margin-left: 10px;
+  margin-left: 5px;
   font-weight: bold;
   color: black;
   border-radius: 18px;
@@ -335,12 +346,4 @@ article.comment input.is-spam-checkbox {
 
 .modal-footer a.evaluate-comments-btn:hover {
   background-color: #2a91eb;
-}
-
-.rigurosity-slider-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  gap: 10px;
 }

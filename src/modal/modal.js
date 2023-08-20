@@ -173,7 +173,7 @@ const create_comment = (comment_data) => {
   comment.classList.add("comment");
   comment.id = spam_comment_id;
 
-  const max_chars = 80;
+  const max_chars = MAX_CHARS_COMMENT;
   let truncate = false;
   let text_comment_to_show = text_comment;
 
@@ -291,21 +291,22 @@ const create_modal_footer_content = (permissons) => {
   const modal_footer_content = document.createElement("div");
   modal_footer_content.classList.add("modal-footer-content");
 
-  const num_is_spam_checkboxes_checked = get_num_is_spam_checkboxes_checked();
+  const min_rigurosity_value = 1.4;
+  const max_rigurosity_value = 2.4;
 
   let modal_footer_content_element_structure = `
         <div class="total-count-container">
           <p>
             Selected: 
-            <span class="num-selected-comments">${num_is_spam_checkboxes_checked}</span>
+            <span class="num-selected-comments">0</span>
             /
-            <span class="num-total-comments">${num_is_spam_checkboxes_checked}</span>
+            <span class="num-total-comments">0</span>
           </p>
         </div>
 
         <div class="rigurosity-slider-container">
           <label for="rigurosity">Rigurosity:</label>
-          <input type="range" id="rigurosity" name="rigurosity" min="0" max="10" step="1" value="4">
+          <input type="range" id="rigurosity" name="rigurosity" min="${min_rigurosity_value}" max="${max_rigurosity_value}" step="0.1" value="1.4">
         </div>
 
         <div class="select-and-button-container">
@@ -341,8 +342,8 @@ const display_execute_options_into_modal_footer = (permissons) => {
   modal_footer.replaceChildren(modal_footer_content);
 
   add_event_to_refresh_num_spam_comments_checked();
-  add_event_to_execute();
   add_event_to_show_comments_by_rigusority();
+  add_event_to_execute();
 };
 
 /* ============================================================ */

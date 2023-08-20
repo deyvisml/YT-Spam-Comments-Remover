@@ -336,7 +336,7 @@ const getSpamCommentsThroughThreshold = (spam_comments, threshold) => {
   for (const spam_comment of spam_comments) {
     const scores = spam_comment.scores;
 
-    if (scores["1"] / scores["0"] > threshold) {
+    if (scores["1"] / scores["0"] >= threshold) {
       spam_comments_through_threshold.push(spam_comment);
     }
   }
