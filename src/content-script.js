@@ -467,5 +467,3 @@ const executeHandler = async () => {
 };
 
 display_button();
-
-// only testing
