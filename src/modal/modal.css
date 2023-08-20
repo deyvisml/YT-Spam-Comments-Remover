@@ -336,3 +336,11 @@ article.comment input.is-spam-checkbox {
 .modal-footer a.evaluate-comments-btn:hover {
   background-color: #2a91eb;
 }
+
+.rigurosity-slider-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  gap: 10px;
+}

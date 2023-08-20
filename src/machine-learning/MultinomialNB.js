@@ -70,7 +70,6 @@ class MultinomialNB {
     const preds = [];
 
     for (const x of X) {
-      let pred = null;
       const scores = {};
 
       for (const class_name of this.class_names) {
@@ -84,19 +83,20 @@ class MultinomialNB {
       }
       //console.log("scores -> ", scores);
 
-      /*
       const max_probability = Math.max(...Object.values(scores));
-      pred = Object.keys(scores).find((key) => scores[key] === max_probability);
-      */
+      const prediction = Object.keys(scores).find(
+        (key) => scores[key] === max_probability
+      );
 
       // modifying: reduce false positive rate
+      /*
       let threshold = 1.4; // (umbral) 1 is default, but a good value is around 1.4 (and 1.8 for testing with TYfQZA4ZaXs)
       pred = "0";
       if (scores["1"] / scores["0"] > threshold) {
         pred = "1";
-      }
+      }*/
 
-      preds.push(pred);
+      preds.push({ prediction, scores });
     }
 
     return preds;

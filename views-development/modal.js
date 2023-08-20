@@ -302,6 +302,12 @@ const create_modal_footer_content = (options) => {
           </p>
         </div>
 
+        <div class="rigurosity-slider-container">
+          <label for="rigurosity">Rigurosity:</label>
+          <input type="range" id="rigurosity" name="rigurosity" min="0" max="10" step="1" value="4">
+        </div>
+
+
         <div class="select-and-button-container">
           <select
             name="select-spam-comments-options"

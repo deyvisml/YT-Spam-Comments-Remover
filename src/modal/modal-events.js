@@ -67,16 +67,13 @@ const add_event_to_make_comment_check_its_checkbox = (comment) => {
 };
 
 const add_event_to_refresh_num_spam_comments_checked = () => {
+  refresh_num_spam_comments_checked();
+
   const comments_container = document.querySelector(".comments-container");
 
   comments_container.addEventListener("click", () => {
     console.log("change");
-    const num_is_spam_checkboxes_checked = get_num_is_spam_checkboxes_checked();
-
-    const num_selected_comments_element = document.querySelector(
-      ".num-selected-comments"
-    );
-    num_selected_comments_element.innerText = num_is_spam_checkboxes_checked;
+    refresh_num_spam_comments_checked();
   });
 };
 
@@ -110,5 +107,24 @@ const add_event_to_execute = () => {
     } else {
       alert("Error, there are not selected comments.");
     }
+  });
+};
+
+const add_event_to_show_comments_by_rigusority = () => {
+  const rigurosity_slider = document.querySelector("#rigurosity");
+
+  console.log("**SPAM_COMMENTS: ", SPAM_COMMENTS);
+  rigurosity_slider.addEventListener("input", () => {
+    const rigurosity_value = rigurosity_slider.value;
+    const threshold = 1 + rigurosity_value / 10;
+
+    const spam_comments_through_threshold = getSpamCommentsThroughThreshold(
+      SPAM_COMMENTS,
+      threshold
+    );
+    console.log("**raaaa: ", spam_comments_through_threshold);
+
+    display_comments_into_modal_body(spam_comments_through_threshold);
+    add_event_to_refresh_num_spam_comments_checked(); // it's important to readd this event because with the previous method we delete the div that had this event
   });
 };

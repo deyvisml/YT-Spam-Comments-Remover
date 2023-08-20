@@ -1,5 +1,28 @@
 /* ========= UTILS =========*/
 
+const refresh_num_spam_comments_checked = () => {
+  const num_is_spam_checkboxes = get_num_is_spam_checkboxes();
+  const num_is_spam_checkboxes_checked = get_num_is_spam_checkboxes_checked();
+
+  const num_total_comments_element = document.querySelector(
+    ".num-total-comments"
+  );
+  const num_selected_comments_element = document.querySelector(
+    ".num-selected-comments"
+  );
+  num_total_comments_element.innerText = num_is_spam_checkboxes;
+  num_selected_comments_element.innerText = num_is_spam_checkboxes_checked;
+};
+
+const get_num_is_spam_checkboxes = () => {
+  // Seleccionar todos los checkboxes
+  const checkboxes = document.querySelectorAll(
+    'article.comment input[type="checkbox"]'
+  );
+
+  return checkboxes.length;
+};
+
 const get_num_is_spam_checkboxes_checked = () => {
   // Seleccionar todos los checkboxes
   const checkboxes = document.querySelectorAll(

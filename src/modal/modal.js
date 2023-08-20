@@ -303,6 +303,11 @@ const create_modal_footer_content = (permissons) => {
           </p>
         </div>
 
+        <div class="rigurosity-slider-container">
+          <label for="rigurosity">Rigurosity:</label>
+          <input type="range" id="rigurosity" name="rigurosity" min="0" max="10" step="1" value="4">
+        </div>
+
         <div class="select-and-button-container">
           <select
             name="select-spam-comments-options"
@@ -337,6 +342,7 @@ const display_execute_options_into_modal_footer = (permissons) => {
 
   add_event_to_refresh_num_spam_comments_checked();
   add_event_to_execute();
+  add_event_to_show_comments_by_rigusority();
 };
 
 /* ============================================================ */
