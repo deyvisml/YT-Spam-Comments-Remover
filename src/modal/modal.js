@@ -291,9 +291,6 @@ const create_modal_footer_content = (permissons) => {
   const modal_footer_content = document.createElement("div");
   modal_footer_content.classList.add("modal-footer-content");
 
-  const min_rigurosity_value = 1.4;
-  const max_rigurosity_value = 2.4;
-
   let modal_footer_content_element_structure = `
         <div class="total-count-container">
           <p>
@@ -306,7 +303,7 @@ const create_modal_footer_content = (permissons) => {
 
         <div class="rigurosity-slider-container">
           <label for="rigurosity">Rigurosity:</label>
-          <input type="range" id="rigurosity" name="rigurosity" min="${min_rigurosity_value}" max="${max_rigurosity_value}" step="0.1" value="1.4">
+          <input type="range" id="rigurosity" name="rigurosity" min="${MIN_RIGUROSITY_VALUE}" max="${MAX_RIGUROSITY_VALUE}" step="0.1" value="${INITIAL_RIGUROSITY_VALUE}">
         </div>
 
         <div class="select-and-button-container">

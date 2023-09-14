@@ -2,7 +2,7 @@
 const oauth2SignIn = (client_id) => {
   const CLIENT_ID = client_id;
   //const CLIENT_ID = "638815897163-tuf2u2l8bq6if08q4jjsod090l32kda4.apps.googleusercontent.com";
-  const REDIRECT_URI = "https://duckduckgo.com"; // in this domain, we are going to recive the access_token in the url
+  const REDIRECT_URI = "https://www.youtube.com"; // in this domain, we are going to recive the access_token in the url
 
   // Google's OAuth 2.0 endpoint for requesting an access token
   const oauth2_endpoint = "https://accounts.google.com/o/oauth2/v2/auth";

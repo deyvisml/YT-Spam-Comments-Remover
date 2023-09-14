@@ -9,29 +9,36 @@ class TextPreprocessor {
     let cleaned_text = text.toLowerCase();
 
     // remove @ mentions
-    cleaned_text = cleaned_text.replace(/@\w+/g, "");
+    cleaned_text = cleaned_text.replace(/@[^@\s]+/g, " ");
 
     // remove <br> strings
-    cleaned_text = cleaned_text.replace(/<br>/g, "");
+    cleaned_text = cleaned_text.replace(/<br>/g, " ");
 
     // remove </b> strings
-    cleaned_text = cleaned_text.replace(/<b>/g, "");
-    cleaned_text = cleaned_text.replace(/<\/b>/g, "");
+    cleaned_text = cleaned_text.replace(/<b>/g, " ");
+    cleaned_text = cleaned_text.replace(/<\/b>/g, " ");
+
+    // remove <a> </a> strings
+    cleaned_text = cleaned_text.replace(/<a [^>]*>/g, " ");
+    cleaned_text = cleaned_text.replace(/<\/a>/g, " ");
 
     // remove &quot;
-    cleaned_text = cleaned_text.replace(/&quot;/g, "");
+    cleaned_text = cleaned_text.replace(/&quot;/g, " ");
 
     // remove &lt;^
-    cleaned_text = cleaned_text.replace(/&lt;\^/g, "");
+    cleaned_text = cleaned_text.replace(/&lt;(\^)?/g, " ");
+
+    // remove &gt;
+    cleaned_text = cleaned_text.replace(/&gt;/g, " ");
 
     // remove URLs
-    cleaned_text = cleaned_text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, "");
+    cleaned_text = cleaned_text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, " ");
 
     // remove punctuations signs
-    cleaned_text = cleaned_text.replace(/[/*&;^,.'\-¡!¿?#’]/g, "");
+    cleaned_text = cleaned_text.replace(/[/*;^(),…@:.><'¡!¿?#’]/g, " ");
 
     // remove numbers
-    cleaned_text = cleaned_text.replace(/[0-9]/g, "");
+    cleaned_text = cleaned_text.replace(/[0-9]/g, " ");
 
     // replace a secuence of whitespaces with one whitespace
     cleaned_text = cleaned_text.replace(/\s+/g, " ");

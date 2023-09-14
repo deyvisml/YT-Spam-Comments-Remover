@@ -90,9 +90,8 @@ class MultinomialNB {
       );*/
 
       // modifying: reduce false positive rate
-      const threshold = 1.4; // (umbral) 1 is default, but a good value is around 1.4 (and 1.8 for testing with TYfQZA4ZaXs)
+      const threshold = 1; // (umbral) 1 is default, but a good value is around 1.4 (and 1.8 for testing with TYfQZA4ZaXs)
       const prediction = scores["1"] / scores["0"] >= threshold ? "1" : "0";
-      console.log("prediction:", prediction);
 
       preds.push({ prediction, scores });
     }

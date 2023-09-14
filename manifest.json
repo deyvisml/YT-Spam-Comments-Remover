@@ -3,7 +3,7 @@
   "name": "DEV - YT Spam Comments Remover",
   "version": "1.0.1",
 
-  "description": "Remove spam comments from your YouTubevideos.",
+  "description": "Remove spam comments (SCAM) from your YouTube videos.",
   "background": {
     "service_worker": "src/service-worker.js",
     "type": "module"
@@ -31,7 +31,8 @@
       ]
     },
     {
-      "matches": ["https://duckduckgo.com/*"],
+      "matches": ["https://www.youtube.com/*"],
+      "exclude_matches": ["https://www.youtube.com/watch?v=*"],
       "js": ["src/utils.js", "src/browser-script.js"]
     }
   ],

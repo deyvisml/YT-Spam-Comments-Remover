@@ -116,13 +116,12 @@ const add_event_to_show_comments_by_rigusority = () => {
   console.log("**SPAM_COMMENTS: ", SPAM_COMMENTS);
   rigurosity_slider.addEventListener("input", () => {
     const threshold = rigurosity_slider.value;
-    console.log("threshold:", threshold);
+    console.log("=> threshold:", threshold);
 
     const spam_comments_through_threshold = getSpamCommentsThroughThreshold(
       SPAM_COMMENTS,
       threshold
     );
-    console.log("**raaaa: ", spam_comments_through_threshold);
 
     display_comments_into_modal_body(spam_comments_through_threshold);
     add_event_to_refresh_num_spam_comments_checked(); // it's important to readd this event because with the previous method we delete the div that had this event

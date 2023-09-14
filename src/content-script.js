@@ -44,7 +44,7 @@ const getUserPreferences = async () => {
   evaluate_by_text_comment = {
     isCheck: true,
     data: {
-      categories: [{ name: "Estafa", model_name: "scam" }],
+      categories: [{ name: "Estafa", model_name: "scam_joined" }],
     },
   }; // testing
 
@@ -373,7 +373,7 @@ const evaluateCommentsHandler = async () => {
 
   const spam_comments_through_threshold = getSpamCommentsThroughThreshold(
     spam_comments,
-    1.4
+    INITIAL_RIGUROSITY_VALUE
   );
 
   console.log(
@@ -381,8 +381,8 @@ const evaluateCommentsHandler = async () => {
     spam_comments_through_threshold
   );
 
-  //const ids_spam_comments = getIDsComments(spam_comments);
-  //console.log("-> IDs_spam_comments", ids_spam_comments);
+  const ids_spam_comments = getIDsComments(spam_comments_through_threshold);
+  console.log("-> IDs spam comments", ids_spam_comments);
 
   if (spam_comments.length == 0) {
     alert("There are not spam comments identified.");
