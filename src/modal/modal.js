@@ -303,7 +303,7 @@ const create_modal_footer_content = (permissons) => {
 
         <div class="rigurosity-slider-container">
           <label for="rigurosity">Rigurosity:</label>
-          <input type="range" id="rigurosity" name="rigurosity" min="${MIN_RIGUROSITY_VALUE}" max="${MAX_RIGUROSITY_VALUE}" step="0.1" value="${INITIAL_RIGUROSITY_VALUE}">
+          <input type="range" id="rigurosity" name="rigurosity" min="${MIN_RIGUROSITY_VALUE}" max="${MAX_RIGUROSITY_VALUE}" step="${STEP_RIGUROSITY_VALUE}" value="${INITIAL_RIGUROSITY_VALUE}">
         </div>
 
         <div class="select-and-button-container">

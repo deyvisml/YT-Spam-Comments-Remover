@@ -9,33 +9,19 @@ class TextPreprocessor {
     let cleaned_text = text.toLowerCase();
 
     // remove @ mentions
-    cleaned_text = cleaned_text.replace(/@[^@\s]+/g, " ");
+    cleaned_text = cleaned_text.replace(/@[^@\s]*/g, " ");
 
-    // remove <br> strings
-    cleaned_text = cleaned_text.replace(/<br>/g, " ");
+    // remove \n;
+    cleaned_text = cleaned_text.replace(/\\n/g, " ");
 
-    // remove </b> strings
-    cleaned_text = cleaned_text.replace(/<b>/g, " ");
-    cleaned_text = cleaned_text.replace(/<\/b>/g, " ");
-
-    // remove <a> </a> strings
-    cleaned_text = cleaned_text.replace(/<a [^>]*>/g, " ");
-    cleaned_text = cleaned_text.replace(/<\/a>/g, " ");
-
-    // remove &quot;
-    cleaned_text = cleaned_text.replace(/&quot;/g, " ");
-
-    // remove &lt;^
-    cleaned_text = cleaned_text.replace(/&lt;(\^)?/g, " ");
-
-    // remove &gt;
-    cleaned_text = cleaned_text.replace(/&gt;/g, " ");
-
-    // remove URLs
-    cleaned_text = cleaned_text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, " ");
+    // remove \";
+    cleaned_text = cleaned_text.replace(/\\\"/g, " ");
 
     // remove punctuations signs
-    cleaned_text = cleaned_text.replace(/[/*;^(),…@:.><'¡!¿?#’]/g, " ");
+    cleaned_text = cleaned_text.replace(/[/*;^(%)$_,…@:."\\><'¡!¿~©️?#’]/g, "");
+
+    // remove individual letters
+    cleaned_text = cleaned_text.replace(/(^|\s)[a-zñ](?=\s|$)/g, " ");
 
     // remove numbers
     cleaned_text = cleaned_text.replace(/[0-9]/g, " ");

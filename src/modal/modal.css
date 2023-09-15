@@ -207,6 +207,10 @@ article.comment input.is-spam-checkbox {
   gap: 0px 10px;
 }
 
+.modal-footer .total-count-container {
+  width: 170px;
+}
+
 .modal-footer .total-count-container p {
   font-size: 15px;
   font-weight: bold;

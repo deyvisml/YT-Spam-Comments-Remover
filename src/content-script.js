@@ -44,7 +44,7 @@ const getUserPreferences = async () => {
   evaluate_by_text_comment = {
     isCheck: true,
     data: {
-      categories: [{ name: "Estafa", model_name: "scam_joined" }],
+      categories: [{ name: "Estafa", model_name: "scam" }],
     },
   }; // testing
 
@@ -149,11 +149,24 @@ const evaluateComment = async (
   }
 };
 
-const evaluateComments = async (comments) => {
+const evaluateComments = async (comments, video_id) => {
   // get user preferences
   const evaluation_types = await getUserPreferences();
   // load the models (considering evaluation_types)
   const models = await loadModels(evaluation_types);
+
+  // get the channel id that owned the current video
+  const video_data = await getVideoData(video_id);
+  let channel_id = "";
+  try {
+    channel_id = video_data.items[0].snippet.channelId.trim();
+  } catch (error) {
+    alert("Error evaluating the comment, problems accessing to the channel id");
+    close_modal();
+    throw new Error(
+      "Error evaluating the comment, problems accessing to the channel id"
+    );
+  }
 
   // evaluando todos los comentarios
   for (const element of comments) {
@@ -161,17 +174,38 @@ const evaluateComments = async (comments) => {
     element.topLevelComment.spamCategoriesMet = []; // para guardar en que categorias de spam "pertenece" cuando se evalue
 
     let comment = element.topLevelComment.snippet.textOriginal;
+    let author_channel_id =
+      element.topLevelComment.snippet.authorChannelId.value;
 
-    // evaluando un comentario (los atributos del resultado se estableceran en element.topLevelComment )
-    evaluateComment(comment, element.topLevelComment, evaluation_types, models);
+    if (EVALUATE_COMMENTS_AUTHOR_VIDEO) {
+      // evaluando un comentario (los atributos del resultado se estableceran en element.topLevelComment )
+      evaluateComment(
+        comment,
+        element.topLevelComment,
+        evaluation_types,
+        models
+      );
+    } else if (channel_id != author_channel_id) {
+      evaluateComment(
+        comment,
+        element.topLevelComment,
+        evaluation_types,
+        models
+      );
+    }
 
     for (const replyComment of element.repliesComments) {
       replyComment.isSpam = false;
       replyComment.spamCategoriesMet = [];
 
       comment = replyComment.snippet.textOriginal;
+      author_channel_id = replyComment.snippet.authorChannelId.value;
 
-      evaluateComment(comment, replyComment, evaluation_types, models);
+      if (EVALUATE_COMMENTS_AUTHOR_VIDEO) {
+        evaluateComment(comment, replyComment, evaluation_types, models);
+      } else if (channel_id != author_channel_id) {
+        evaluateComment(comment, replyComment, evaluation_types, models);
+      }
     }
   }
 
@@ -231,19 +265,24 @@ const getClientID = async () => {
   return null;
 };
 
+const getVideoData = async (video_id) => {
+  const result = await sendMessage("get-video-data", video_id);
+
+  if (result.errorOccurred) throw new Error("Error getting the video data");
+
+  return result.data;
+};
+
 const isVideoAuthor = async (video_id) => {
   // get video data
-  let video_data = null;
-  const result = await sendMessage("get-video-data", video_id);
-  if (result.errorOccurred) throw new Error("Error getting the video data");
-  else video_data = result.data;
+  const video_data = await getVideoData(video_id);
 
   // get channel data logged user
   let channel_data_logged_user = null;
-  const restul2 = await sendMessage("get-channel-data-logged-user", null);
+  const result = await sendMessage("get-channel-data-logged-user", null);
   if (result.errorOccurred)
     throw new Error("Error getting the channel data of the logged user");
-  else channel_data_logged_user = restul2.data;
+  else channel_data_logged_user = result.data;
 
   // verifying
   //console.log("video_data:", video_data);
@@ -260,9 +299,7 @@ const isVideoAuthor = async (video_id) => {
     );
   }
 
-  if (video_made_by_channel_id == channel_id_logged_user) return true;
-
-  return false;
+  return video_made_by_channel_id == channel_id_logged_user;
 };
 
 const getUserData = async () => {
@@ -354,7 +391,7 @@ const evaluateCommentsHandler = async () => {
 
   const video_id = getVideoId();
 
-  let comments = null;
+  let comments = [];
   if (MODE == "dev") {
     // para no gastar tokens de yt en el desarrollo
     comments = await getValueFromLocalStorage("comments");
@@ -364,7 +401,7 @@ const evaluateCommentsHandler = async () => {
   }
   console.log(comments);
 
-  const evaluated_comments = await evaluateComments(comments);
+  const evaluated_comments = await evaluateComments(comments, video_id);
   console.log("-> Evaluted comments: ", evaluated_comments);
 
   const spam_comments = filterSpamComments(evaluated_comments);
@@ -443,6 +480,7 @@ const execute = async (option, comment_ids) => {
 
     default:
       alert("Unkown selected option.");
+      close_modal();
       throw new Error("Unkown selected option.");
       break;
   }
@@ -450,7 +488,6 @@ const execute = async (option, comment_ids) => {
   return result;
 };
 
-// TODO: WORKING IN THIS METHOD
 const executeHandler = async () => {
   // get ids from checked spam comments
   const spam_comments_id_checked = get_spam_comments_id_checked();
